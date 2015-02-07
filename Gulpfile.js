@@ -12,13 +12,16 @@ var gulpif = require('gulp-if');
 var uglify = require('gulp-uglify');
 var streamify = require('gulp-streamify');
 
+var connect = require('gulp-connect');
+
 var env = process.env.NODE_ENV || 'development';
 var devDir = 'build/dev';
 
 gulp.task('jade', function() {
 	return gulp.src('src/templates/**/*.jade')
 			   .pipe(jade())
-			   .pipe(gulp.dest(devDir));
+			   .pipe(gulp.dest(devDir))
+			   .pipe(connect.reload());
 });
 
 gulp.task('stylus', function() {
@@ -31,14 +34,16 @@ gulp.task('stylus', function() {
 	return gulp.src('src/styles/**/*.styl')
 		       .pipe(stylus(config))
 		       .pipe(sourcemaps.write())
-		       .pipe(gulp.dest(devDir + '/css'));
+		       .pipe(gulp.dest(devDir + '/css'))
+		       .pipe(connect.reload());
 });
 
 gulp.task('bundle', function() {
 	return browserify('./src/js/main', { debug: env === 'development' }).bundle()
 								.pipe(source('bundle.js'))
 								.pipe(streamify(gulpif(env === 'production', uglify())))
-								.pipe(gulp.dest(devDir + '/js'));
+								.pipe(gulp.dest(devDir + '/js'))
+								.pipe(connect.reload());
 });
 
 gulp.task('watch', function() {
@@ -47,4 +52,14 @@ gulp.task('watch', function() {
 	gulp.watch('src/js/**/*.js', ['bundle']);
 });
 
-gulp.task('default', ['jade', 'stylus', 'bundle', 'watch']);
+gulp.task('connect', function() {
+	var port = 8080;
+
+	connect.server({
+		root: [devDir],
+		port: port,
+		livereload: true
+	});
+});
+
+gulp.task('default', ['jade', 'stylus', 'bundle', 'watch', 'connect']);

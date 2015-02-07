@@ -4,7 +4,7 @@ var sudoku = require('../js/main');
 
 describe('Sudokuber', function(){
   describe('board', function(){
-  	var testSize = function(n) {
+  	var testDimensions = function(n) {
   		var board = sudoku.createBoard(n);
 
   		it('should have ' + n + ' rows', function(){
@@ -19,10 +19,10 @@ describe('Sudokuber', function(){
   	};
 
   	var n = 9;
-  	describe('of fixed size', testSize.bind(this, n));
+  	describe('of fixed size', testDimensions.bind(null, n));
 
   	n = Math.ceil(Math.random() * 9);
-  	describe('of arbitrary size', testSize.bind(this, n));
+  	describe('of arbitrary size', testDimensions.bind(null, n));
 
   });  
 });

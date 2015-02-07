@@ -13,7 +13,6 @@ describe('Sudokuber', function(){
 	
     	it('should have ' + n + ' columns', function(){
     	  (board.length > 0 && board.every(function(row) {
-    	  	console.log(n, row.length);
     	  	return row.length === n;
     	  })).should.be.true;
     	});

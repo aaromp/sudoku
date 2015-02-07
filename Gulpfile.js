@@ -12,6 +12,8 @@ var gulpif = require('gulp-if');
 var uglify = require('gulp-uglify');
 var streamify = require('gulp-streamify');
 
+var mocha = require('gulp-mocha');
+
 var connect = require('gulp-connect');
 
 var env = process.env.NODE_ENV || 'development';
@@ -44,6 +46,11 @@ gulp.task('bundle', function() {
 								.pipe(streamify(gulpif(env === 'production', uglify())))
 								.pipe(gulp.dest(devDir + '/js'))
 								.pipe(connect.reload());
+});
+
+gulp.task('test', function () {
+    return gulp.src('src/tests/test.js', {read: false})
+			   .pipe(mocha({reporter: 'nyan'}));
 });
 
 gulp.task('watch', function() {

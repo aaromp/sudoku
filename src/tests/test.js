@@ -1,28 +1,24 @@
 var should = require('should');
 
-var sudoku = require('../js/main');
+var Sudokuber = require('../js/main');
 
 describe('Sudokuber', function(){
   describe('board', function(){
   	var testDimensions = function(n) {
-  		var board = sudoku.createBoard(n);
+  		var sudokuber = new Sudokuber(n);
 
   		it('should have ' + n + ' rows', function(){
-    	  board.should.have.a.lengthOf(n);
+    	  sudokuber.board.should.have.a.lengthOf(n);
     	});
 	
     	it('should have ' + n + ' columns', function(){
-    	  (board.length > 0 && board.every(function(row) {
+    	  (sudokuber.board.length > 0 && sudokuber.board.every(function(row) {
     	  	return row.length === n;
     	  })).should.be.true;
     	});
   	};
 
-  	var n = 9;
-  	describe('of fixed size', testDimensions.bind(null, n));
-
-  	n = Math.ceil(Math.random() * 9);
-  	describe('of arbitrary size', testDimensions.bind(null, n));
-
+  	describe('of fixed size', testDimensions.bind(null, 9));
+  	describe('of arbitrary size', testDimensions.bind(null, Math.ceil(Math.random() * 9)));
   });  
 });

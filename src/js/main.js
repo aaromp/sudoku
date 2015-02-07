@@ -1,13 +1,10 @@
-var sudoku = require('./test');
+var helpers = require('./helpers');
 
-sudoku();
-
-module.exports = {
-	createBoard: function(n) {
-		return Array.apply(null, Array(n)).map(function() {
-			return Array.apply(null, Array(n)).map(function() {
-				return 0;
-			});
-		});
-	}
+var Sudokuber = function(n) {
+	this.n = n;
+	this.board = helpers.createBoard(n);
 };
+
+Sudokuber.prototype.validateCell = helpers.validateCell;
+
+module.exports = Sudokuber;

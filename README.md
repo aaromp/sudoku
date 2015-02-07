@@ -2,10 +2,9 @@
 
 src/
 	js/
-	
 	styles/
-	
 	templates/
+	tests/
 
 builds/
 	dev/

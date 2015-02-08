@@ -1,18 +1,18 @@
 var should = require('should');
 
-var Sudokuber = require('../js/main');
+var Sudoku = require('../js/main');
 
-describe('Sudokuber', function(){
+describe('Sudoku', function(){
   describe('board', function(){
   	var testDimensions = function(n) {
-  		var sudokuber = new Sudokuber(n);
+  		var sudoku = new Sudoku(n);
 
   		it('should have ' + n + ' rows', function(){
-    	  sudokuber.board.should.have.a.lengthOf(n);
+    	  sudoku.board.should.have.a.lengthOf(n);
     	});
 	
     	it('should have ' + n + ' columns', function(){
-    	  var hasNColumns = (sudokuber.board.length > 0 && sudokuber.board.every(function(row) {
+    	  var hasNColumns = (sudoku.board.length > 0 && sudoku.board.every(function(row) {
     	  	return row.length === n;
     	  }));
 
@@ -23,10 +23,10 @@ describe('Sudokuber', function(){
   	describe('of fixed size', testDimensions.bind(null, 9));
   	describe('of arbitrary size', testDimensions.bind(null, Math.ceil(Math.random() * 9)));
 
-  	var sudokuber = new Sudokuber(9);
-  	
+  	var sudoku = new Sudoku(9);
+
   	it('should initially be empty', function() {
-  		var empty = (sudokuber.board.length > 0 && sudokuber.board.every(function(row) {
+  		var empty = (sudoku.board.length > 0 && sudoku.board.every(function(row) {
   			return row.every(function(entry) {
   				return entry === 0;
   			});
@@ -36,30 +36,101 @@ describe('Sudokuber', function(){
   	});
 
   	it('should be settable', function() {
-  		var row = Math.ceil(sudokuber.board.length * Math.random());
-  		var column = Math.ceil(sudokuber.board.length * Math.random());
-  		var value = Math.ceil(sudokuber.board.length * Math.random());
+  		var row = Math.ceil(sudoku.board.length * Math.random());
+  		var column = Math.ceil(sudoku.board.length * Math.random());
+  		var value = Math.ceil(sudoku.board.length * Math.random());
 
-  		sudokuber.setCell(row, column, value);
+  		sudoku.setCell(row, column, value);
 
-  		sudokuber.board[row][column].should.equal(value);
+  		sudoku.board[row-1][column-1].should.equal(value);
   	});
 
   	it('should be clearable', function() {
-  		var row = Math.ceil(sudokuber.board.length * Math.random());
-  		var column = Math.ceil(sudokuber.board.length * Math.random());
-  		var value = Math.ceil(sudokuber.board.length * Math.random());
+  		var row = Math.ceil(sudoku.board.length * Math.random());
+  		var column = Math.ceil(sudoku.board.length * Math.random());
+  		var value = Math.ceil(sudoku.board.length * Math.random());
 
-  		sudokuber.setCell(row, column, value);
-  		sudokuber.board[row][column].should.not.equal(0);
+  		sudoku.setCell(row, column, value);
+  		sudoku.board[row-1][column-1].should.not.equal(0);
 
-  		sudokuber.clearCell(row, column);
-  		sudokuber.board[row][column].should.equal(0);
+  		sudoku.clearCell(row, column);
+  		sudoku.board[row-1][column-1].should.equal(0);
   	});
 
   });
 
-  describe('validate', function(){
+  describe('validation', function(){
+  	var start = [
+  		[5, 3, 0, 0, 7, 0, 0, 0, 0],
+  		[6, 0, 0, 1, 9, 5, 0, 0, 0],
+  		[0, 9, 8, 0, 0, 0, 0, 6, 0],
+  		[8, 0, 0, 0, 6, 0, 0, 0, 3],
+  		[4, 0, 0, 8, 0, 3, 0, 0, 1],
+  		[7, 0, 0, 0, 2, 0, 0, 0, 6],
+  		[0, 6, 0, 0, 0, 0, 2, 8, 0],
+  		[0, 0, 0, 4, 1, 9, 0, 0, 5],
+  		[0, 0, 0, 0, 8, 0, 0, 7, 9]
+  	];
+
+  	var end = [
+  		[5, 3, 4, 6, 7, 8, 9, 1, 2],
+  		[6, 7, 2, 1, 9, 5, 3, 4, 8],
+  		[1, 9, 8, 3, 4, 2, 5, 6, 7],
+  		[8, 5, 9, 7, 6, 1, 4, 2, 3],
+  		[4, 2, 6, 8, 5, 3, 7, 9, 1],
+  		[7, 1, 3, 9, 2, 4, 8, 5, 6],
+  		[9, 6, 1, 5, 3, 7, 2, 8, 4],
+  		[2, 8, 7, 4, 1, 9, 6, 3, 5],
+  		[3, 4, 5, 2, 8, 6, 1, 7, 9]
+  	];
+
+  	var sudoku = new Sudoku(9);
+  	describe('background', function() {
+  		it('should update sets', function() {
+  			sudoku.board = end;
+  			var row = 1;
+  			var column = 1;
+  			sudoku.updateSets(row, column);
+	
+  			sudoku.current.rowCount.should.equal(9);
+  			sudoku.current.columnCount.should.equal(9);
+  			sudoku.current.sectionCount.should.equal(9);
+	
+  			Object.keys(sudoku.current.rowSet).length.should.equal(sudoku.current.rowCount);
+  			Object.keys(sudoku.current.columnSet).length.should.equal(sudoku.current.columnCount);
+  			Object.keys(sudoku.current.sectionSet).length.should.equal(sudoku.current.sectionCount);
+  		});
+
+  		it('should update sets', function() {
+  			sudoku.board = start;
+  			sudoku.updateSets(1, 1);
+	
+  			sudoku.current.rowCount.should.equal(3);
+  			sudoku.current.columnCount.should.equal(5);
+  			sudoku.current.sectionCount.should.equal(5);
+	
+  			Object.keys(sudoku.current.rowSet).length.should.equal(sudoku.current.rowCount);
+  			Object.keys(sudoku.current.columnSet).length.should.equal(sudoku.current.columnCount);
+  			Object.keys(sudoku.current.sectionSet).length.should.equal(sudoku.current.sectionCount);
+  		});
+  	});
+  	
+
+  	xit('should determine conflicts in a row', function() {
+  		var row = Math.ceil(sudoku.board.length * Math.random());
+  		sudoku.validateRow(row).should.be.true;
+  	});
+
+  	xit('should determine conflicts in a column', function() {
+  		var column = Math.ceil(sudoku.board.length * Math.random());
+  		sudoku.validateColumn(column).should.be.true;
+  	});
+
+  	xit('should determine conflicts in a section', function() {
+  		var row = Math.ceil(sudoku.board.length * Math.random());
+  		var column = Math.ceil(sudoku.board.length * Math.random());
+  		sudoku.validateSection(row, column).should.be.true;
+  	});
 
   });
 });

@@ -1,3 +1,7 @@
+var updateSets = function() {
+
+};
+
 module.exports = {
 	createBoard: function(n) {
 		return Array.apply(null, Array(n)).map(function() {
@@ -7,10 +11,10 @@ module.exports = {
 		});
 	},
 	setCell: function(row, column, value) {
-		this.board[row][column] = value;
+		this.board[row-1][column-1] = value;
 	},
 	clearCell: function(row, column) {
-		this.board[row][column] = 0;
+		this.board[row-1][column-1] = 0;
 	},
 	validateCell: function(row, column) {
 		// var rowSet = {};

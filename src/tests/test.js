@@ -23,7 +23,8 @@ describe('Sudokuber', function(){
   	describe('of fixed size', testDimensions.bind(null, 9));
   	describe('of arbitrary size', testDimensions.bind(null, Math.ceil(Math.random() * 9)));
 
-  	var sudokuber = new Sudokuber(n);
+  	var sudokuber = new Sudokuber(9);
+  	
   	it('should initially be empty', function() {
   		var empty = (sudokuber.board.length > 0 && sudokuber.board.every(function(row) {
   			return row.every(function(entry) {
@@ -34,13 +35,31 @@ describe('Sudokuber', function(){
   		empty.should.be.true;
   	});
 
+  	it('should be settable', function() {
+  		var row = Math.ceil(sudokuber.board.length * Math.random());
+  		var column = Math.ceil(sudokuber.board.length * Math.random());
+  		var value = Math.ceil(sudokuber.board.length * Math.random());
+
+  		sudokuber.setCell(row, column, value);
+
+  		sudokuber.board[row][column].should.equal(value);
+  	});
+
+  	it('should be clearable', function() {
+  		var row = Math.ceil(sudokuber.board.length * Math.random());
+  		var column = Math.ceil(sudokuber.board.length * Math.random());
+  		var value = Math.ceil(sudokuber.board.length * Math.random());
+
+  		sudokuber.setCell(row, column, value);
+  		sudokuber.board[row][column].should.not.equal(0);
+
+  		sudokuber.clearCell(row, column);
+  		sudokuber.board[row][column].should.equal(0);
+  	});
+
   });
 
   describe('validate', function(){
-  	var board = []
 
-  	describe('of fixed size', function() {
-
-  	});
   });
 });

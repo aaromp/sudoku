@@ -6,11 +6,11 @@ module.exports = {
 			});
 		});
 	},
-	setCell: function() {
-
+	setCell: function(row, column, value) {
+		this.board[row][column] = value;
 	},
-	clearCell: function() {
-
+	clearCell: function(row, column) {
+		this.board[row][column] = 0;
 	},
 	validateCell: function(row, column) {
 		// var rowSet = {};

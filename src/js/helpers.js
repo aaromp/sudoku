@@ -51,7 +51,7 @@ module.exports = {
 		this.board[row-1][column-1] = 0;
 		updateSets.call(this, row-1, column-1);
 	},
-	validateCell: function(row, column) {
+	validate: function() {
 		
 	}
 };

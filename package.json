@@ -4,7 +4,7 @@
   "description": "a sudoku game",
   "main": "index.js",
   "scripts": {
-    "test": "test"
+    "test": "gulp test"
   },
   "keywords": [
     "sudoku"

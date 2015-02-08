@@ -1,6 +1,7 @@
 var should = require('should');
 
 var Sudoku = require('../js/main');
+var helpers = require('../js/helpers');
 
 describe('Sudoku', function(){
   describe('board', function(){
@@ -117,19 +118,42 @@ describe('Sudoku', function(){
   			Object.keys(sudoku.current.sectionSet).length.should.equal(sudoku.current.sectionCount);
   		});
   	});
-  	
 
-  	xit('should determine conflicts in a row', function() {
+	describe('for entire board', function() {
+  		it('should recorgnize a valid board', function() {
+  			sudoku.board = end;
+  			var row = 1;
+  			var column = 1;
+  			sudoku.remaining = 0;
+  			sudoku.setCell(row, column, sudoku.board[row-1][column-1]);
+	
+  			sudoku.validate().should.be.true;
+  		});
+
+  		it('should recognize an invalid board', function() {
+  			sudoku.board = end;
+  			var row = 1;
+  			var column = 1;
+  			sudoku.remaining = 0;
+  			sudoku.setCell(row, column, sudoku.board[row-1][column-1] + 1);
+	
+  			sudoku.validate().should.be.false;
+  		});
+  	});
+  	
+  	// helpers.createBoard(sudoku.n);
+
+  	xit('should validate incomplete rows', function() {
   		var row = Math.ceil(sudoku.board.length * Math.random());
   		sudoku.validateRow(row).should.be.true;
   	});
 
-  	xit('should determine conflicts in a column', function() {
+  	xit('should validate incomplete columns', function() {
   		var column = Math.ceil(sudoku.board.length * Math.random());
   		sudoku.validateColumn(column).should.be.true;
   	});
 
-  	xit('should determine conflicts in a section', function() {
+  	xit('should validate incomplete sections', function() {
   		var row = Math.ceil(sudoku.board.length * Math.random());
   		var column = Math.ceil(sudoku.board.length * Math.random());
   		sudoku.validateSection(row, column).should.be.true;

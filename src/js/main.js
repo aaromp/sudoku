@@ -9,6 +9,6 @@ var Sudokuber = function(n) {
 
 Sudokuber.prototype.setCell = helpers.setCell;
 Sudokuber.prototype.clearCell = helpers.clearCell;
-Sudokuber.prototype.validateCell = helpers.validateCell;
+Sudokuber.prototype.validate = helpers.validate;
 
 module.exports = Sudokuber;

@@ -74,10 +74,6 @@ module.exports = {
 		this.board[row-1][column-1] = value;
 		validatePlacement.call(this, row-1, column-1);
 	},
-	clearCell: function(row, column) {
-		this.board[row-1][column-1] = 0;
-		validatePlacement.call(this, row-1, column-1);
-	},
 	validateBoard: function() {
 		return this.board.every(function(row, index) {
 			return validateIndex.call(this, index);

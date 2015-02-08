@@ -1,15 +1,17 @@
 var helpers = require('./helpers');
 
-var Sudokuber = function(n) {
+var Sudoku = function(n) {
 	this.n = n;
-	this.sqrt = Math.sqrt(this.n);
+	this.sqrt = Math.sqrt(this.n); // avoid redundant Math.sqrt calls
 	this.board = helpers.createBoard(n);
 	this.current = {};
 };
 
 
-Sudokuber.prototype.setCell = helpers.setCell;
-Sudokuber.prototype.clearCell = helpers.clearCell;
-Sudokuber.prototype.validateBoard = helpers.validateBoard;
+Sudoku.prototype.setCell = helpers.setCell;
+Sudoku.prototype.clearCell = function(row, column) {
+	this.setCell(row, column, 0);
+};
+Sudoku.prototype.validateBoard = helpers.validateBoard;
 
-module.exports = Sudokuber;
+module.exports = Sudoku;

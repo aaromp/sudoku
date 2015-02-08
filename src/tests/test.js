@@ -87,7 +87,7 @@ describe('Sudoku', function(){
 
   	var sudoku = new Sudoku(9);
   	describe('background', function() {
-  		it('should update sets', function() {
+  		it('should validate placement (complete)', function() {
   			sudoku.board = end;
   			var row = 1;
   			var column = 1;
@@ -102,7 +102,7 @@ describe('Sudoku', function(){
   			Object.keys(sudoku.current.sectionSet).length.should.equal(sudoku.current.sectionCount);
   		});
 
-  		it('should update sets', function() {
+  		it('should validate placement (incomplete)', function() {
   			sudoku.board = start;
   			var row = 1;
   			var column = 1;
@@ -133,22 +133,6 @@ describe('Sudoku', function(){
 	
   			sudoku.validateBoard().should.be.false;
   		});
-  	});
-  	
-  	xit('should validate incomplete rows', function() {
-  		var row = Math.ceil(sudoku.board.length * Math.random());
-  		sudoku.validateRow(row).should.be.true;
-  	});
-
-  	xit('should validate incomplete columns', function() {
-  		var column = Math.ceil(sudoku.board.length * Math.random());
-  		sudoku.validateColumn(column).should.be.true;
-  	});
-
-  	xit('should validate incomplete sections', function() {
-  		var row = Math.ceil(sudoku.board.length * Math.random());
-  		var column = Math.ceil(sudoku.board.length * Math.random());
-  		sudoku.validateSection(row, column).should.be.true;
   	});
 
   });

@@ -63,6 +63,12 @@ var validateIndex = function(section) {
 };
 
 module.exports = {
+	isPerfectSquare: function(n) {
+		this.sqrt = Math.sqrt(n);
+		var roundedSqrt = Math.floor(this.sqrt);
+
+		return (this.sqrt * this.sqrt) === (roundedSqrt * roundedSqrt);
+	},
 	createBoard: function(n) {
 		return Array.apply(null, Array(n)).map(function() {
 			return Array.apply(null, Array(n)).map(function() {

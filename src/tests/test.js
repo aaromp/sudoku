@@ -3,26 +3,77 @@ var should = require('should');
 var Sudoku = require('../js/main');
 var helpers = require('../js/helpers');
 
+var start = [
+	[5, 3, 0, 0, 7, 0, 0, 0, 0],
+	[6, 0, 0, 1, 9, 5, 0, 0, 0],
+	[0, 9, 8, 0, 0, 0, 0, 6, 0],
+	[8, 0, 0, 0, 6, 0, 0, 0, 3],
+	[4, 0, 0, 8, 0, 3, 0, 0, 1],
+	[7, 0, 0, 0, 2, 0, 0, 0, 6],
+	[0, 6, 0, 0, 0, 0, 2, 8, 0],
+	[0, 0, 0, 4, 1, 9, 0, 0, 5],
+	[0, 0, 0, 0, 8, 0, 0, 7, 9]
+];
+
+var end = [
+	[5, 3, 4, 6, 7, 8, 9, 1, 2],
+	[6, 7, 2, 1, 9, 5, 3, 4, 8],
+	[1, 9, 8, 3, 4, 2, 5, 6, 7],
+	[8, 5, 9, 7, 6, 1, 4, 2, 3],
+	[4, 2, 6, 8, 5, 3, 7, 9, 1],
+	[7, 1, 3, 9, 2, 4, 8, 5, 6],
+	[9, 6, 1, 5, 3, 7, 2, 8, 4],
+	[2, 8, 7, 4, 1, 9, 6, 3, 5],
+	[3, 4, 5, 2, 8, 6, 1, 7, 9]
+];
+
 describe('Sudoku', function(){
   describe('board', function(){
   	var testDimensions = function(n) {
-  		var sudoku = new Sudoku(n);
+  		var sudoku;
 
-  		it('should have ' + n + ' rows', function(){
-    	  sudoku.board.should.have.a.lengthOf(n);
-    	});
+  		if (helpers.isPerfectSquare(n)) {
+  			sudoku = new Sudoku(n);
+
+  			it('should have ' + n + ' rows', function() {
+    		  sudoku.board.should.have.a.lengthOf(n);
+    		});
+
+    		it('should have ' + n + ' columns', function() {
+    		  var hasNColumns = (sudoku.board.length > 0 && sudoku.board.every(function(row) {
+    		  	return row.length === n;
+    		  }));
 	
-    	it('should have ' + n + ' columns', function(){
-    	  var hasNColumns = (sudoku.board.length > 0 && sudoku.board.every(function(row) {
-    	  	return row.length === n;
-    	  }));
-
-    	  hasNColumns.should.be.true;
-    	});
+    		  hasNColumns.should.be.true;
+    		});
+  		} else {
+  			it('should throw an error', function() {
+    		  (function() { new Sudoku(n) }).should.throw();
+    		});
+  		}
   	};
 
   	describe('of fixed size', testDimensions.bind(null, 9));
-  	describe('of arbitrary size', testDimensions.bind(null, Math.ceil(Math.random() * 9)));
+  	describe('of inappropriate size', testDimensions.bind(null, 3));
+  	var random = Math.ceil(Math.random() * 7) + 2;
+  	describe('of arbitrary size', testDimensions.bind(null, random * random));
+
+  	describe('from matrix input', function() {
+  		it('should copy correctly', function() {
+  			var sudoku = new Sudoku(start);
+  			var matches = (sudoku.board.length > 0 && sudoku.board.every(function(row, rowIndex) {
+  				return row.every(function(value, columnIndex) {
+  					return value === start[rowIndex][columnIndex];
+  				});
+  			}));
+
+  			matches.should.be.true;
+  		});
+
+  		it('should throw an error if input is invalid', function() {
+  			(function() { new Sudoku([5, 3, 0, 0, 7, 0, 0, 0, 0]) }).should.throw();
+  		});
+  	});
 
   	var sudoku = new Sudoku(9);
 
@@ -61,29 +112,6 @@ describe('Sudoku', function(){
   });
 
   describe('validation', function(){
-  	var start = [
-  		[5, 3, 0, 0, 7, 0, 0, 0, 0],
-  		[6, 0, 0, 1, 9, 5, 0, 0, 0],
-  		[0, 9, 8, 0, 0, 0, 0, 6, 0],
-  		[8, 0, 0, 0, 6, 0, 0, 0, 3],
-  		[4, 0, 0, 8, 0, 3, 0, 0, 1],
-  		[7, 0, 0, 0, 2, 0, 0, 0, 6],
-  		[0, 6, 0, 0, 0, 0, 2, 8, 0],
-  		[0, 0, 0, 4, 1, 9, 0, 0, 5],
-  		[0, 0, 0, 0, 8, 0, 0, 7, 9]
-  	];
-
-  	var end = [
-  		[5, 3, 4, 6, 7, 8, 9, 1, 2],
-  		[6, 7, 2, 1, 9, 5, 3, 4, 8],
-  		[1, 9, 8, 3, 4, 2, 5, 6, 7],
-  		[8, 5, 9, 7, 6, 1, 4, 2, 3],
-  		[4, 2, 6, 8, 5, 3, 7, 9, 1],
-  		[7, 1, 3, 9, 2, 4, 8, 5, 6],
-  		[9, 6, 1, 5, 3, 7, 2, 8, 4],
-  		[2, 8, 7, 4, 1, 9, 6, 3, 5],
-  		[3, 4, 5, 2, 8, 6, 1, 7, 9]
-  	];
 
   	var sudoku = new Sudoku(9);
   	describe('background', function() {
@@ -130,8 +158,8 @@ describe('Sudoku', function(){
   			var column = 1;
   			sudoku.remaining = 0;
   			sudoku.setCell(row, column, sudoku.board[row-1][column-1] + 1);
-	
   			sudoku.validateBoard().should.be.false;
+  			sudoku.setCell(row, column, sudoku.board[row-1][column-1] - 1);
   		});
   	});
 

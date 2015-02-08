@@ -40,7 +40,6 @@ describe('Sudoku', function(){
   		var row = Math.ceil(sudoku.board.length * Math.random());
   		var column = Math.ceil(sudoku.board.length * Math.random());
   		var value = Math.ceil(sudoku.board.length * Math.random());
-  		console.log(row, column, value);
 
   		sudoku.setCell(row, column, value);
 
@@ -122,12 +121,7 @@ describe('Sudoku', function(){
 	describe('for entire board', function() {
   		it('should recorgnize a valid board', function() {
   			sudoku.board = end;
-  			var row = 1;
-  			var column = 1;
-  			sudoku.remaining = 0;
-  			sudoku.setCell(row, column, sudoku.board[row-1][column-1]);
-	
-  			sudoku.validate().should.be.true;
+  			sudoku.validateBoard().should.be.true;
   		});
 
   		it('should recognize an invalid board', function() {
@@ -137,12 +131,10 @@ describe('Sudoku', function(){
   			sudoku.remaining = 0;
   			sudoku.setCell(row, column, sudoku.board[row-1][column-1] + 1);
 	
-  			sudoku.validate().should.be.false;
+  			sudoku.validateBoard().should.be.false;
   		});
   	});
   	
-  	// helpers.createBoard(sudoku.n);
-
   	xit('should validate incomplete rows', function() {
   		var row = Math.ceil(sudoku.board.length * Math.random());
   		sudoku.validateRow(row).should.be.true;

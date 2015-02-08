@@ -7,14 +7,24 @@ var resetCurrent = function() {
 	this.current.sectionSet = {};
 };
 
-var updateSets = function(row, column) {
+// 0, 0 => 0
+// 0, 1 => 1
+// 0, 2 => 2
+// 1, 0 => 3
+// 1, 1 => 4
+// 1, 2 => 5
+// 2, 0 => 6
+// 2, 1 => 7
+// 2, 2 => 8
+
+// row = (index / sqrt) * sqrt
+// col = (index % sqrt) * sqrt
+// var section = row + (col / sqrt); // get the index of the section
+
+var validate = function(sectionRowOrigin, sectionColumnOrigin, row, column) {
 	resetCurrent.call(this);
 
-	var sqrt = Math.sqrt(this.n);
-	var sectionRowOrigin = Math.floor(row / sqrt);
-	var sectionColumnOrigin = Math.floor(column / sqrt);
 	var sectionRow, sectionColumn;
-
 	for (var index = 0; index < this.n; index++) {
 		if (this.board[row][index] !== 0) {
 			this.current.rowCount++;
@@ -26,13 +36,30 @@ var updateSets = function(row, column) {
 			this.current.columnSet[this.board[index][column]] = true;
 		}
 
-		sectionRow = sectionRowOrigin + (index % sqrt);
-		sectionColumn = sectionColumnOrigin + (Math.floor(index / sqrt));
+		sectionRow = sectionRowOrigin + (index % this.sqrt);
+		sectionColumn = sectionColumnOrigin + (Math.floor(index / this.sqrt));
 		if (this.board[sectionRow][sectionColumn] !== 0) {
 			this.current.sectionCount++;
 			this.current.sectionSet[this.board[sectionRow][sectionColumn]] = true;
 		}
 	}
+
+	return (Object.keys(this.current.rowSet).length === this.current.rowCount &&
+			Object.keys(this.current.columnSet).length === this.current.columnCount &&
+			Object.keys(this.current.sectionSet).length === this.current.sectionCount);
+};
+
+var validatePlacement = function(row, column) {
+	var sectionRowOrigin = Math.floor(row / this.sqrt);
+	var sectionColumnOrigin = Math.floor(column / this.sqrt);
+
+	return validate.call(this, sectionRowOrigin, sectionColumnOrigin, row, column);
+};
+
+var validateIndex = function(section) {
+	var sectionRowOrigin = Math.floor(section / this.sqrt) * this.sqrt;
+	var sectionColumnOrigin = (section % this.sqrt) * this.sqrt;
+	return validate.call(this, sectionRowOrigin, sectionColumnOrigin, section, section);
 };
 
 module.exports = {
@@ -45,13 +72,15 @@ module.exports = {
 	},
 	setCell: function(row, column, value) {
 		this.board[row-1][column-1] = value;
-		updateSets.call(this, row-1, column-1);
+		validatePlacement.call(this, row-1, column-1);
 	},
 	clearCell: function(row, column) {
 		this.board[row-1][column-1] = 0;
-		updateSets.call(this, row-1, column-1);
+		validatePlacement.call(this, row-1, column-1);
 	},
-	validate: function() {
-		
+	validateBoard: function() {
+		return this.board.every(function(row, index) {
+			return validateIndex.call(this, index);
+		}.bind(this));
 	}
 };

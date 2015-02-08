@@ -2,6 +2,7 @@ var helpers = require('./helpers');
 
 var Sudokuber = function(n) {
 	this.n = n;
+	this.sqrt = Math.sqrt(this.n);
 	this.board = helpers.createBoard(n);
 	this.current = {};
 };
@@ -9,6 +10,6 @@ var Sudokuber = function(n) {
 
 Sudokuber.prototype.setCell = helpers.setCell;
 Sudokuber.prototype.clearCell = helpers.clearCell;
-Sudokuber.prototype.validate = helpers.validate;
+Sudokuber.prototype.validateBoard = helpers.validateBoard;
 
 module.exports = Sudokuber;

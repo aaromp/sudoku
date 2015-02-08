@@ -46,6 +46,24 @@ describe('Sudoku', function(){
 	
     		  hasNColumns.should.be.true;
     		});
+
+    		it('should have the correct options matrix', function() {
+    			sudoku.options.should.have.a.lengthOf(sudoku.n);
+
+    			var hasNColumns = (sudoku.options.length > 0 && sudoku.options.every(function(row) {
+    		  		return row.length === sudoku.n;
+    		  	}));
+		
+    		  	hasNColumns.should.be.true;
+
+    		  	var hasCorrectOptions = sudoku.options.every(function(row, rowIndex) {
+    		  		return row.every(function(options, columnIndex) {
+    		  			return Object.keys(options).length === sudoku.n;
+    		  		});
+    		  	});
+
+    		  	hasCorrectOptions.should.be.true;
+    		});
   		} else {
   			it('should throw an error', function() {
     		  (function() { new Sudoku(n) }).should.throw();
@@ -68,6 +86,16 @@ describe('Sudoku', function(){
   			}));
 
   			matches.should.be.true;
+
+  			var placedCount = sudoku.board.reduce(function(count, row) {
+  				row.forEach(function(entry) {
+  					if (entry !== 0) count++;
+  				});
+
+  				return count;
+  			}, 0);
+
+  			sudoku.remainingMoves.should.equal(placedCount);
   		});
 
   		it('should throw an error if input is invalid', function() {
@@ -85,6 +113,8 @@ describe('Sudoku', function(){
   		}));
 
   		empty.should.be.true;
+
+  		sudoku.remainingMoves.should.equal(sudoku.n*sudoku.n);
   	});
 
   	it('should be settable', function() {
@@ -113,10 +143,9 @@ describe('Sudoku', function(){
 
   describe('validation', function(){
 
-  	var sudoku = new Sudoku(9);
   	describe('background', function() {
   		it('should validate placement (complete)', function() {
-  			sudoku.board = end;
+  			var sudoku = new Sudoku(end);
   			var row = 1;
   			var column = 1;
   			sudoku.setCell(row, column, sudoku.board[row-1][column-1]);
@@ -131,7 +160,7 @@ describe('Sudoku', function(){
   		});
 
   		it('should validate placement (incomplete)', function() {
-  			sudoku.board = start;
+  			var sudoku = new Sudoku(start);
   			var row = 1;
   			var column = 1;
   			sudoku.setCell(row, column, sudoku.board[row-1][column-1]);
@@ -144,23 +173,26 @@ describe('Sudoku', function(){
   			Object.keys(sudoku.current.columnSet).length.should.equal(sudoku.current.columnCount);
   			Object.keys(sudoku.current.sectionSet).length.should.equal(sudoku.current.sectionCount);
   		});
+  		
   	});
 
 	describe('for entire board', function() {
+
   		it('should recorgnize a valid board', function() {
-  			sudoku.board = end;
+  			var sudoku = new Sudoku(start);
   			sudoku.validateBoard().should.be.true;
   		});
 
   		it('should recognize an invalid board', function() {
-  			sudoku.board = end;
+  			var sudoku = new Sudoku(end);
   			var row = 1;
   			var column = 1;
-  			sudoku.remaining = 0;
+  			sudoku.remainingMoves = 0;
   			sudoku.setCell(row, column, sudoku.board[row-1][column-1] + 1);
   			sudoku.validateBoard().should.be.false;
   			sudoku.setCell(row, column, sudoku.board[row-1][column-1] - 1);
   		});
+
   	});
 
   });

@@ -39,6 +39,7 @@ describe('Sudoku', function(){
   		var row = Math.ceil(sudoku.board.length * Math.random());
   		var column = Math.ceil(sudoku.board.length * Math.random());
   		var value = Math.ceil(sudoku.board.length * Math.random());
+  		console.log(row, column, value);
 
   		sudoku.setCell(row, column, value);
 
@@ -90,7 +91,7 @@ describe('Sudoku', function(){
   			sudoku.board = end;
   			var row = 1;
   			var column = 1;
-  			sudoku.updateSets(row, column);
+  			sudoku.setCell(row, column, sudoku.board[row-1][column-1]);
 	
   			sudoku.current.rowCount.should.equal(9);
   			sudoku.current.columnCount.should.equal(9);
@@ -103,7 +104,9 @@ describe('Sudoku', function(){
 
   		it('should update sets', function() {
   			sudoku.board = start;
-  			sudoku.updateSets(1, 1);
+  			var row = 1;
+  			var column = 1;
+  			sudoku.setCell(row, column, sudoku.board[row-1][column-1]);
 	
   			sudoku.current.rowCount.should.equal(3);
   			sudoku.current.columnCount.should.equal(5);

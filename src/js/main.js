@@ -26,6 +26,7 @@ var Sudoku = function() {
 			column: new SudokuSet(this.n),
 			section: new SudokuSet(this.n)
 		};
+		this.options = helpers.initializeOptions.call(this);
 		arguments[0].forEach(function(row, rowIndex) {
 			if (row.length !== this.n) throw new Error('the matrix must be n x n');
 
@@ -43,19 +44,16 @@ var Sudoku = function() {
 
 
 Sudoku.prototype.setCell = function(row, column, value) {
-	if (value === 0) {
-		this.clearCell(row, column);
-	} else {
-		if (this.board[row][column] === 0) this.remainingMoves--;
-		this.board[row][column] = value;
-		helpers.validatePlacement.call(this, row, column);
-	}
+	if (this.board[row][column] !== 0 && value === 0) this.remainingMoves++;
+	else if (this.board[row][column] === 0 && value !== 0) this.remainingMoves--;
+	var previous = this.board[row][column];
+	this.board[row][column] = value;
+	helpers.validatePlacement.call(this, row, column);
+	if (previous !== value) helpers.updateOptions.call(this, previous, row, column);
 };
 
 Sudoku.prototype.clearCell = function(row, column) {
-	if (this.board[row][column] !== 0) this.remainingMoves++;
-	this.board[row][column] = 0;
-	helpers.validatePlacement.call(this, row, column);
+	this.setCell(row, column, 0);
 };
 Sudoku.prototype.validateBoard = helpers.validateBoard;
 

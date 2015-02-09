@@ -210,8 +210,8 @@ describe('Sudoku', function(){
 		var missingOption = function(sudoku, row, column, value) {
 			var result = true;
 			var changedOption = sudoku.options[row][column];
-			for (var i = 0; i <= sudoku.length; i++) {
-				if (i === 0 || i === value) {
+			for (var i = 0; i <= sudoku.n; i++) {
+				if (i === 0 || (value !== 0 && i === value)) {
 					if (changedOption[i]) result = false;
 				} else {
 					if (!changedOption[i]) result = false;
@@ -233,8 +233,8 @@ describe('Sudoku', function(){
 			var value;
 
 			// adding
-			sudoku.setCell(row, column, value);
 			value = 8;
+			sudoku.setCell(row, column, value);
 			var added = missingOption(sudoku, row, column, value);
 			added.should.be.true;
 
@@ -250,7 +250,7 @@ describe('Sudoku', function(){
 			var unchanged = missingOption(sudoku, row, column, value);
 			unchanged.should.be.true;
 
-			// earasing
+			// erasing
 			sudoku.setCell(row, column, 0);
 			var erased = optionsAreEmpty(sudoku);
 			erased.should.be.true;

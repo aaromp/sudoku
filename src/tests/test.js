@@ -73,7 +73,7 @@ describe('Sudoku', function(){
 
   	describe('of fixed size', testDimensions.bind(null, 9));
   	describe('of inappropriate size', testDimensions.bind(null, 3));
-  	var random = Math.ceil(Math.random() * 7) + 2;
+  	var random = Math.floor(Math.random() * 7) + 2;
   	describe('of arbitrary size', testDimensions.bind(null, random * random));
 
   	describe('from matrix input', function() {
@@ -95,7 +95,7 @@ describe('Sudoku', function(){
   				return count;
   			}, 0);
 
-  			sudoku.remainingMoves.should.equal(placedCount);
+  			sudoku.remainingMoves.should.equal((sudoku.n * sudoku.n) - placedCount);
   		});
 
   		it('should throw an error if input is invalid', function() {
@@ -118,25 +118,25 @@ describe('Sudoku', function(){
   	});
 
   	it('should be settable', function() {
-  		var row = Math.ceil(sudoku.board.length * Math.random());
-  		var column = Math.ceil(sudoku.board.length * Math.random());
-  		var value = Math.ceil(sudoku.board.length * Math.random());
+  		var row = Math.floor(sudoku.board.length * Math.random());
+  		var column = Math.floor(sudoku.board.length * Math.random());
+  		var value = Math.floor(sudoku.board.length * Math.random());
 
   		sudoku.setCell(row, column, value);
 
-  		sudoku.board[row-1][column-1].should.equal(value);
+  		sudoku.board[row][column].should.equal(value);
   	});
 
   	it('should be clearable', function() {
-  		var row = Math.ceil(sudoku.board.length * Math.random());
-  		var column = Math.ceil(sudoku.board.length * Math.random());
-  		var value = Math.ceil(sudoku.board.length * Math.random());
+  		var row = Math.floor(sudoku.board.length * Math.random());
+  		var column = Math.floor(sudoku.board.length * Math.random());
+  		var value = 1 + Math.floor((sudoku.board.length-1) * Math.random());
 
   		sudoku.setCell(row, column, value);
-  		sudoku.board[row-1][column-1].should.not.equal(0);
+  		sudoku.board[row][column].should.not.equal(0);
 
   		sudoku.clearCell(row, column);
-  		sudoku.board[row-1][column-1].should.equal(0);
+  		sudoku.board[row][column].should.equal(0);
   	});
 
   });
@@ -148,32 +148,34 @@ describe('Sudoku', function(){
   			var sudoku = new Sudoku(end);
   			var row = 1;
   			var column = 1;
-  			sudoku.setCell(row, column, sudoku.board[row-1][column-1]);
+  			sudoku.setCell(row, column, sudoku.board[row][column]);
 	
-  			sudoku.current.rowCount.should.equal(9);
-  			sudoku.current.columnCount.should.equal(9);
-  			sudoku.current.sectionCount.should.equal(9);
+  			sudoku.current.row.count.should.equal(9);
+  			sudoku.current.column.count.should.equal(9);
+  			sudoku.current.section.count.should.equal(9);
 	
-  			Object.keys(sudoku.current.rowSet).length.should.equal(sudoku.current.rowCount);
-  			Object.keys(sudoku.current.columnSet).length.should.equal(sudoku.current.columnCount);
-  			Object.keys(sudoku.current.sectionSet).length.should.equal(sudoku.current.sectionCount);
+  			sudoku.current.row.isValid().should.be.true;
+  			sudoku.current.column.isValid().should.be.true;
+  			sudoku.current.section.isValid().should.be.true;
   		});
 
   		it('should validate placement (incomplete)', function() {
   			var sudoku = new Sudoku(start);
-  			var row = 1;
-  			var column = 1;
-  			sudoku.setCell(row, column, sudoku.board[row-1][column-1]);
+  			var row = 0;
+  			var column = 0;
+  			var value = sudoku.board[row][column];
+  			sudoku.clearCell(row, column);
+  			sudoku.setCell(row, column, value);
 	
-  			sudoku.current.rowCount.should.equal(3);
-  			sudoku.current.columnCount.should.equal(5);
-  			sudoku.current.sectionCount.should.equal(5);
+  			sudoku.current.row.count.should.equal(3);
+  			sudoku.current.column.count.should.equal(5);
+  			sudoku.current.section.count.should.equal(5);
 	
-  			Object.keys(sudoku.current.rowSet).length.should.equal(sudoku.current.rowCount);
-  			Object.keys(sudoku.current.columnSet).length.should.equal(sudoku.current.columnCount);
-  			Object.keys(sudoku.current.sectionSet).length.should.equal(sudoku.current.sectionCount);
+  			sudoku.current.row.isValid().should.be.true;
+  			sudoku.current.column.isValid().should.be.true;
+  			sudoku.current.section.isValid().should.be.true;
   		});
-  		
+
   	});
 
 	describe('for entire board', function() {
@@ -188,9 +190,8 @@ describe('Sudoku', function(){
   			var row = 1;
   			var column = 1;
   			sudoku.remainingMoves = 0;
-  			sudoku.setCell(row, column, sudoku.board[row-1][column-1] + 1);
+  			sudoku.setCell(row, column, sudoku.board[row][column] + 1);
   			sudoku.validateBoard().should.be.false;
-  			sudoku.setCell(row, column, sudoku.board[row-1][column-1] - 1);
   		});
 
   	});

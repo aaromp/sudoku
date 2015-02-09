@@ -55,6 +55,11 @@ Sudoku.prototype.setCell = function(row, column, value) {
 Sudoku.prototype.clearCell = function(row, column) {
 	this.setCell(row, column, 0);
 };
+
 Sudoku.prototype.validateBoard = helpers.validateBoard;
+
+Sudoku.prototype.solve = function() {
+
+};
 
 module.exports = Sudoku;

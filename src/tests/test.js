@@ -258,4 +258,18 @@ describe('Sudoku', function(){
 
 	});
 	
+	describe('solver', function() {
+		it('should handle the wikipedia example', function() {
+			var sudoku = new Sudoku(start);
+			sudoku.solve();
+
+			var solved = (sudoku.board.length > 0 && sudoku.board.every(function(row, rowIndex) {
+				return row.every(function(entry, columnIndex) {
+					return sudoku.board[rowIndex][columnIndex] === end[rowIndex][columnIndex];
+				});
+			}));
+
+			solved.should.be.true;
+		});
+	});
 });

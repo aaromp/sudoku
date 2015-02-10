@@ -103,6 +103,43 @@ var updateOption = function(previous, row, column) {
 	}
 };
 
+// var removeInvalidPlacements = function() {
+// 	matrixForEach.call(this.board, function(value, row, column, matrix) {
+// 		if (this.options[row][column][value]) this.clearCell(row, column);
+// 	}.bind(this));
+// };
+
+// var findMostConstrained = function() {
+// 	var leastOptions = this.n;
+// 	var mostConstrained = [0, 0];
+
+// 	var numOptions;
+// 	matrixForEach.call(this.board, function(value, row, column, matrix) {
+// 		numOptions = Object.keys(this.options[row][column]).length;
+// 		if (value !== 0 && numOptions < leastOptions) {
+// 			leastOptions = numOptions;
+// 			mostConstrained[0] = row;
+// 			mostConstrained[1] = column;
+// 		}
+// 	}.bind(this));
+
+// 	return mostConstrained;
+// };
+
+// var lookAhead = function(row, column) {
+
+// };
+
+// var lookAhead = function(row, column, value) {
+// 	var available = true;
+// 	setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
+// 		var options = this.options[row][column];
+// 		if (options[value] && Object.keys(options).length === 1) available = false;
+// 	});
+
+// 	return available;
+// };
+
 module.exports = {
 	isPerfectSquare: function(n) {
 		this.sqrt = Math.sqrt(n);
@@ -147,8 +184,9 @@ module.exports = {
 	
 		// TODO: refactor so there's only one call to setsForEach
 		// not erasing; remove value from options
-		var rowOrigin = Math.floor(row / this.sqrt);
-		var columnOrigin = Math.floor(column / this.sqrt);
+		var rowOrigin = Math.floor(row / this.sqrt) * this.sqrt;
+		var columnOrigin = Math.floor(column / this.sqrt) * this.sqrt;
+		console.log(previous, row, column, rowOrigin, columnOrigin);
 		if (previous === 0 || value !== 0) {
 			setsForEach.call(this, row, column, rowOrigin, columnOrigin, removeOption.bind(this, value));
 		}
@@ -158,6 +196,43 @@ module.exports = {
 			setsForEach.call(this, row, column, rowOrigin, columnOrigin, addOption.bind(this, previous));
 		}
 	},
+	removeInvalidPlacements: function() {
+		matrixForEach.call(this, this.board, function(value, row, column, matrix) {
+			if (this.options[row][column][value]) this.clearCell(row, column);
+		}.bind(this));
+	},
+
+	findMostConstrained: function() {
+		var leastOptions = this.n + 1;
+		var mostConstrained;
+	
+		var numOptions;
+		matrixForEach.call(this, this.options, function(options, row, column, matrix) {
+			numOptions = Object.keys(options).length;
+			// must be available and have options but fewer than least found so far
+			if (this.board[row][column] === 0 && numOptions > 0 && numOptions < leastOptions) {
+				leastOptions = numOptions;
+				mostConstrained = [row, column];
+				console.log('most constrained', options);
+			}
+		}.bind(this));
+	
+		return mostConstrained;
+	},
+
+	lookAhead: function(row, column, value) {
+		var available = true;
+		var rowOrigin = Math.floor(row / this.sqrt);
+		var columnOrigin = Math.floor(column / this.sqrt);
+		setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
+			var options = this.options[row][column];
+			if (options[value] && Object.keys(options).length === 1) available = false;
+		});
+	
+		console.log('look ahead available?', available);
+		return available;
+	},
+
 	validateBoard: function() {
 		return this.board.every(function(row, index) {
 			return validateIndex.call(this, index);

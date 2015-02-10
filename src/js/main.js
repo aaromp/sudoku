@@ -58,8 +58,43 @@ Sudoku.prototype.clearCell = function(row, column) {
 
 Sudoku.prototype.validateBoard = helpers.validateBoard;
 
-Sudoku.prototype.solve = function() {
+var recSolve = function() {
+	console.log('remainingMoves', this.remainingMoves);
+	if (this.remainingMoves === 0) return true;
+	// find the most constrained tile (fewest options and isn't set)
+	var position = helpers.findMostConstrained.call(this);
+	console.log('position', position);
+	if (position === undefined) return false;
+	var options = Object.keys(this.options[position[0]][position[1]]);
+	console.log('options', options);
 
+	// if the current position only has one thing avaiable place it
+	if (options.length === 1) {
+		this.setCell(position[0], position[1], parseInt(options[0]));
+		console.log('set', options[0], 'at', position);
+		console.log(this.board);
+		this.solve.call(this);
+	// for each option:
+	} else {
+		options.forEach(function(option) {
+			// look ahead—if option has to be something else, skip it
+			if (helpers.lookAhead.call(this, position[0], position[1], option)) {
+				// otherwise place it and recurse
+				this.setCell(position[0], position[1], parseInt(option));
+				console.log('set', option, 'at', position);
+				console.log(this.board);
+				// if we succeed we're done
+				if (recSolve.call(this)) return true;
+				// otherwise we need to backtrack
+				this.clearCell(position[0], position[1]);
+			}		
+		}.bind(this));
+	}
+};
+
+Sudoku.prototype.solve = function() {
+	helpers.removeInvalidPlacements.call(this);
+	recSolve.call(this);
 };
 
 module.exports = Sudoku;

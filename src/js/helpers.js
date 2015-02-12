@@ -14,15 +14,15 @@ var setsForEach = function(row, column, rowOrigin, columnOrigin, callback) {
 
 	for (var index = 0; index < this.n; index++) {
 		// apply callback on row
-		callback.call(this, row, index, this.current.row);
+		callback.call(this, row, index, this.current.row, 'row');
 
 		// apply callback on column 
-		callback.call(this, index, column, this.current.column);
+		callback.call(this, index, column, this.current.column, 'column');
 
 		// apply callback on section
 		sectionRow = rowOrigin + (index % this.sqrt);
 		sectionColumn = columnOrigin + (Math.floor(index / this.sqrt));
-		callback.call(this, sectionRow, sectionColumn, this.current.section);
+		callback.call(this, sectionRow, sectionColumn, this.current.section, 'section');
 	}
 };
 
@@ -35,10 +35,10 @@ var validate = function(rowOrigin, columnOrigin, row, column) {
 	}.bind(this));
 };
 
-var validateIndex = function(section) {
-	var sectionRowOrigin = Math.floor(section / this.sqrt) * this.sqrt;
-	var sectionColumnOrigin = (section % this.sqrt) * this.sqrt;
-	return validate.call(this, sectionRowOrigin, sectionColumnOrigin, section, section);
+var validateIndex = function(index) {
+	var sectionRowOrigin = Math.floor(index / this.sqrt) * this.sqrt;
+	var sectionColumnOrigin = (index % this.sqrt) * this.sqrt;
+	return validate.call(this, sectionRowOrigin, sectionColumnOrigin, index, index);
 };
 
 var initializeMatrix = function(n, callback) {
@@ -76,59 +76,6 @@ var matrixForEach = function(matrix, callback) {
 // 	return intersection;
 // };
 
-var removeOption = function(value, row, column) {
-	delete this.options[row][column][value];
-};
-
-var addOption = function(previous, row, column) {
-	this.options[row][column][previous] = true;
-};
-
-var updateOption = function(previous, row, column) {
-	var value = this.board[row][column];
-	
-	// TODO: refactor so there's only one call to setsForEach
-	// not erasing; remove value from options
-	var rowOrigin = Math.floor(row / this.sqrt);
-	var columnOrigin = Math.floor(column / this.sqrt);
-	if (previous === 0 || value !== 0) {
-		console.log(value === 0);
-		setsForEach.call(this, row, column, rowOrigin, columnOrigin, removeOption.bind(this, value));
-	}
-	
-	// not adding; add previous to options
-	if (previous !== 0 || value === 0) {
-		console.log(previous === 0);
-		setsForEach.call(this, row, column, rowOrigin, columnOrigin, addOption.bind(this, previous));
-	}
-};
-
-// var removeInvalidPlacements = function() {
-// 	matrixForEach.call(this.board, function(value, row, column, matrix) {
-// 		if (this.options[row][column][value]) this.clearCell(row, column);
-// 	}.bind(this));
-// };
-
-// var findMostConstrained = function() {
-// 	var leastOptions = this.n;
-// 	var mostConstrained = [0, 0];
-
-// 	var numOptions;
-// 	matrixForEach.call(this.board, function(value, row, column, matrix) {
-// 		numOptions = Object.keys(this.options[row][column]).length;
-// 		if (value !== 0 && numOptions < leastOptions) {
-// 			leastOptions = numOptions;
-// 			mostConstrained[0] = row;
-// 			mostConstrained[1] = column;
-// 		}
-// 	}.bind(this));
-
-// 	return mostConstrained;
-// };
-
-// var lookAhead = function(row, column) {
-
-// };
 
 // var lookAhead = function(row, column, value) {
 // 	var available = true;
@@ -140,6 +87,14 @@ var updateOption = function(previous, row, column) {
 // 	return available;
 // };
 
+var removeOption = function(value, row, column) {
+	delete this.options[row][column][value];
+};
+
+var addOption = function(previous, row, column) {
+	this.options[row][column][previous] = true;
+};
+
 module.exports = {
 	isPerfectSquare: function(n) {
 		this.sqrt = Math.sqrt(n);
@@ -147,9 +102,8 @@ module.exports = {
 
 		return (this.sqrt * this.sqrt) === (roundedSqrt * roundedSqrt);
 	},
-	createBoard: function() {
-		this.remainingMoves = this.n * this.n;
-		return initializeMatrix.call(this, this.n, function() {
+	createBoard: function(n) {
+		return initializeMatrix.call(this, n, function() {
 			return 0;
 		}.bind(this));
 	},
@@ -162,17 +116,6 @@ module.exports = {
 			return options;
 		}.bind(this));
 	},
-	// createBoard: function(n) {
-	// 	return Array.apply(null, Array(n)).map(function() {
-	// 		return Array.apply(null, Array(n)).map(function() {
-	// 			return 0;
-	// 		});
-	// 	});
-	// },
-	// setCell: function(row, column, value) {
-	// 	this.board[row][column] = value;
-	// 	// validatePlacement.call(this, row, column);
-	// },
 	validatePlacement: function(row, column) {
 		var sectionRowOrigin = Math.floor(row / this.sqrt) * this.sqrt;
 		var sectionColumnOrigin = Math.floor(column / this.sqrt) * this.sqrt;
@@ -182,18 +125,34 @@ module.exports = {
 	updateOptions: function(previous, row, column) {
 		var value = this.board[row][column];
 	
-		// TODO: refactor so there's only one call to setsForEach
 		// not erasing; remove value from options
 		var rowOrigin = Math.floor(row / this.sqrt) * this.sqrt;
 		var columnOrigin = Math.floor(column / this.sqrt) * this.sqrt;
-		console.log(previous, row, column, rowOrigin, columnOrigin);
-		if (previous === 0 || value !== 0) {
-			setsForEach.call(this, row, column, rowOrigin, columnOrigin, removeOption.bind(this, value));
-		}
-		
-		// not adding; add previous to options
-		if (previous !== 0 || value === 0) {
-			setsForEach.call(this, row, column, rowOrigin, columnOrigin, addOption.bind(this, previous));
+
+		// if adding
+		if (previous === 0 && value !== 0) {
+			setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
+				delete this.options[row][column][value];
+			}.bind(this));
+		} 
+		// if erasing
+		else if (previous !== 0 && value === 0) {
+			var options = {};
+			for (var i = 1; i <= this.n; i++) {
+				options[i] = true;
+			}
+			setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
+				delete options[this.board[row][column]];
+			}.bind(this));
+			// this.options[row][column] = options;
+			console.log(options)
+		} 
+		// updating
+		else if (previous !== value) {
+			setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
+				delete this.options[row][column][value];
+				this.options[row][column][previous] = true;
+			}.bind(this));
 		}
 	},
 	removeInvalidPlacements: function() {
@@ -202,34 +161,43 @@ module.exports = {
 		}.bind(this));
 	},
 
-	findMostConstrained: function() {
-		var leastOptions = this.n + 1;
+	findMostConstrained: function(seen) {
+		var fewestOptions = this.n + 1;
 		var mostConstrained;
 	
 		var numOptions;
-		matrixForEach.call(this, this.options, function(options, row, column, matrix) {
-			numOptions = Object.keys(options).length;
-			// must be available and have options but fewer than least found so far
-			if (this.board[row][column] === 0 && numOptions > 0 && numOptions < leastOptions) {
-				leastOptions = numOptions;
-				mostConstrained = [row, column];
-				console.log('most constrained', options);
+		// matrixForEach.call(this, this.options, function(options, row, column, matrix) {
+		// 	numOptions = Object.keys(options).length;
+		// 	// must be available and have options but fewer than least found so far
+		// 	if (this.board[row][column] === 0 && numOptions > 0 && numOptions < fewestOptions && !seen[[row, column]]) {
+		// 		// fewestOptions = numOptions;
+		// 		mostConstrained = [row, column];
+		// 	}
+		// }.bind(this));
+
+		for (var i = 0; i < this.board.length; i++) {
+			for (var j = 0; j < this.board[i].length; j++) {
+				numOptions = Object.keys(this.options[i][j]).length;
+				if (this.board[i][j] === 0 && numOptions > 0 && numOptions < fewestOptions && !seen[[i, j]]) {
+					fewestOptions = numOptions;
+					mostConstrained = [i, j];
+					seen[mostConstrained] = true;
+					// return mostConstrained;
+				}
 			}
-		}.bind(this));
-	
+		}
 		return mostConstrained;
 	},
 
 	lookAhead: function(row, column, value) {
 		var available = true;
-		var rowOrigin = Math.floor(row / this.sqrt);
-		var columnOrigin = Math.floor(column / this.sqrt);
+		var rowOrigin = Math.floor(row / this.sqrt) * this.sqrt;
+		var columnOrigin = Math.floor(column / this.sqrt) * this.sqrt;
 		setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
 			var options = this.options[row][column];
 			if (options[value] && Object.keys(options).length === 1) available = false;
 		});
 	
-		console.log('look ahead available?', available);
 		return available;
 	},
 

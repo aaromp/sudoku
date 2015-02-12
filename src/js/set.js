@@ -1,23 +1,32 @@
-var SudokuSet = function(max) {
-	this.max = max;
-	this.empty();
+var SudokuSet = function(n) {
+	this.set = initializeSet(n);
 };
 
-SudokuSet.prototype.empty = function() {
-	this.count = 0;
-	this.set = {};
+SudokuSet.prototype.contains = function(value) {
+	return this.set[value] > 0;
 };
 
 SudokuSet.prototype.insert = function(value) {
-	if (this.count >= this.max) throw new Error('exceeded max size');
-	if (value > 0 && value <= this.max) {
-		this.count++;
-		this.set[value] = true;
-	}
+	if (value > 0) this.set[value]++;
 };
 
-SudokuSet.prototype.isValid = function() {
-	return Object.keys(this.set).length === this.count;
+SudokuSet.prototype.delete = function(value) {
+	if (value > 0) this.set[value]--;
 };
+
+SudokuSet.prototype.hasConflict = function() {
+	return Object.keys(this.set).some(function(value) {
+		return this.set[value] > 1;
+	}.bind(this));
+};
+
+function initializeSet(n) {
+	var set = {};
+	for (var index = 1; index <= n; index++) {
+		set[index] = 0;
+	}
+
+	return set;
+}
 
 module.exports = SudokuSet;

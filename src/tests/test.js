@@ -1,7 +1,9 @@
 var should = require('should');
 
 var Sudoku = require('../js/main');
+var SudokuSet = require('../js/set');
 var helpers = require('../js/helpers');
+
 
 var start = [
 	[5, 3, 0, 0, 7, 0, 0, 0, 0],
@@ -27,6 +29,8 @@ var end = [
 	[3, 4, 5, 2, 8, 6, 1, 7, 9]
 ];
 
+
+// from http://www.telegraph.co.uk/news/science/science-news/9359579/Worlds-hardest-sudoku-can-you-crack-it.html
 var hard = [
 	[8, 0, 0, 0, 0, 0, 0, 0, 0],
 	[0, 0, 3, 6, 0, 0, 0, 0, 0],
@@ -48,34 +52,35 @@ describe('Sudoku', function(){
 				sudoku = new Sudoku(n);
 
 				it('should have ' + n + ' rows', function() {
-	  		  sudoku.board.should.have.a.lengthOf(n);
-	  		});
-
-	  		it('should have ' + n + ' columns', function() {
-	  		  var hasNColumns = (sudoku.board.length > 0 && sudoku.board.every(function(row) {
-	  		  	return row.length === n;
-	  		  }));
+	  			  sudoku.board.should.have.a.lengthOf(n);
+	  			});
 	
-	  		  hasNColumns.should.be.true;
-	  		});
-
-	  		it('should have the correct options matrix', function() {
-	  			sudoku.options.should.have.a.lengthOf(sudoku.n);
-
-	  			var hasNColumns = (sudoku.options.length > 0 && sudoku.options.every(function(row) {
-	  		  		return row.length === sudoku.n;
-	  		  	}));
+	  			it('should have ' + n + ' columns', function() {
+	  			  var hasNColumns = (sudoku.board.length > 0 && sudoku.board.every(function(row) {
+	  			  	return row.length === n;
+	  			  }));
 		
-	  		  	hasNColumns.should.be.true;
+	  			  hasNColumns.should.be.true;
+	  			});
+	
+	  			it('should correctly initialize state', function() {
+	  				sudoku.should.have.property('state');
+	  				sudoku.state.rows.should.have.a.lengthOf(sudoku.n);
+	  				sudoku.state.columns.should.have.a.lengthOf(sudoku.n);
+	  				sudoku.state.sections.should.have.a.lengthOf(sudoku.n);
 
-	  		  	var hasCorrectOptions = sudoku.options.every(function(row, rowIndex) {
-	  		  		return row.every(function(options, columnIndex) {
-	  		  			return Object.keys(options).length === sudoku.n;
-	  		  		});
-	  		  	});
+	  				sudoku.state.rows.forEach(function(element) {
+	  					(element instanceof SudokuSet).should.be.true;
+	  				});
 
-	  		  	hasCorrectOptions.should.be.true;
-	  		});
+	  				sudoku.state.columns.forEach(function(element) {
+	  					(element instanceof SudokuSet).should.be.true;
+	  				});
+
+	  				sudoku.state.sections.forEach(function(element) {
+	  					(element instanceof SudokuSet).should.be.true;
+	  				});
+	  			});
 			} else {
 				it('should throw an error', function() {
 	  		  (function() { new Sudoku(n) }).should.throw();
@@ -134,7 +139,7 @@ describe('Sudoku', function(){
 			var column = Math.floor(sudoku.board.length * Math.random());
 			var value = Math.floor(sudoku.board.length * Math.random());
 
-			sudoku.setCell(row, column, value);
+			sudoku.set(row, column, value);
 
 			sudoku.board[row][column].should.equal(value);
 		});
@@ -144,10 +149,10 @@ describe('Sudoku', function(){
 			var column = Math.floor(sudoku.board.length * Math.random());
 			var value = 1 + Math.floor((sudoku.board.length-1) * Math.random());
 
-			sudoku.setCell(row, column, value);
+			sudoku.set(row, column, value);
 			sudoku.board[row][column].should.not.equal(0);
 
-			sudoku.clearCell(row, column);
+			sudoku.set(row, column, 0);
 			sudoku.board[row][column].should.equal(0);
 		});
 
@@ -158,34 +163,15 @@ describe('Sudoku', function(){
 		describe('background', function() {
 			it('should validate placement (complete)', function() {
 				var sudoku = new Sudoku(end);
-				var row = 1;
-				var column = 1;
-				sudoku.setCell(row, column, sudoku.board[row][column]);
-	
-				sudoku.current.row.count.should.equal(9);
-				sudoku.current.column.count.should.equal(9);
-				sudoku.current.section.count.should.equal(9);
-	
-				sudoku.current.row.isValid().should.be.true;
-				sudoku.current.column.isValid().should.be.true;
-				sudoku.current.section.isValid().should.be.true;
+				sudoku.state.hasConflict().should.be.false;
 			});
 
 			it('should validate placement (incomplete)', function() {
 				var sudoku = new Sudoku(start);
 				var row = 0;
 				var column = 0;
-				var value = sudoku.board[row][column];
-				sudoku.clearCell(row, column);
-				sudoku.setCell(row, column, value);
-	
-				sudoku.current.row.count.should.equal(3);
-				sudoku.current.column.count.should.equal(5);
-				sudoku.current.section.count.should.equal(5);
-	
-				sudoku.current.row.isValid().should.be.true;
-				sudoku.current.column.isValid().should.be.true;
-				sudoku.current.section.isValid().should.be.true;
+
+				sudoku.state.hasConflictAt(row, column).should.be.false;
 			});
 
 		});
@@ -194,16 +180,16 @@ describe('Sudoku', function(){
 
 			it('should recorgnize a valid board', function() {
 				var sudoku = new Sudoku(start);
-				sudoku.validateBoard().should.be.true;
+				sudoku.state.hasConflict().should.be.false;
 			});
 
 			it('should recognize an invalid board', function() {
 				var sudoku = new Sudoku(end);
 				var row = 1;
 				var column = 1;
-				sudoku.remainingMoves = 0;
-				sudoku.setCell(row, column, sudoku.board[row][column] + 1);
-				sudoku.validateBoard().should.be.false;
+				var value = sudoku.board[row][column] + 1;
+				sudoku.set(row, column, value);
+				sudoku.state.hasConflict().should.be.true;
 			});
 
 		});
@@ -211,22 +197,20 @@ describe('Sudoku', function(){
 	});
 
 	describe('tracking', function() {
-		var optionsAre = function(sudoku, number) {
-			return sudoku.options.every(function(row) {
-				return row.every(function(options) {
-					return (Object.keys(options).length === number);
-				});
-			});
-		};
-
-		var missingOption = function(sudoku, row, column, value) {
+		var missingOption = function(sudoku, row, column, value, options) {
 			var result = true;
-			var changedOption = sudoku.options[row][column];
-			for (var i = 0; i <= sudoku.n; i++) {
-				if (i === 0 || (value !== 0 && i === value)) {
-					if (changedOption[i]) result = false;
+			var sqrt = Math.sqrt(sudoku.n);
+			var section = (Math.floor(row / sqrt) * sqrt) + (Math.floor(column / sqrt) % sqrt);
+
+			for (var i = 1; i <= sudoku.n; i++) {
+				if (options[i]) {
+					if (sudoku.state.rows[row].set[i] !== 1) result = false;
+					if (sudoku.state.columns[column].set[i] !== 1) result = false;
+					if (sudoku.state.sections[section].set[i] !== 1) result = false;
 				} else {
-					if (!changedOption[i]) result = false;
+					if (sudoku.state.rows[row].set[i] !== 0) result = false;
+					if (sudoku.state.columns[column].set[i] !== 0) result = false;
+					if (sudoku.state.sections[section].set[i] !== 0) result = false;
 				}
 			}
 
@@ -235,56 +219,79 @@ describe('Sudoku', function(){
 
 		it('should show correct number of available moves', function() {
 			var sudoku = new Sudoku(9);
-			var initialized = optionsAre(sudoku, sudoku.n);
 
-			initialized.should.be.true;
-
-			var row = 0;
-			var column = 0;
-			var changedOption = sudoku.options[row][column];
+			var row = Math.floor(Math.random() * 9);
+			var column = Math.floor(Math.random() * 9);
 			var value;
 
 			// adding
 			value = 8;
-			sudoku.setCell(row, column, value);
-			var added = missingOption(sudoku, row, column, value);
+			sudoku.set(row, column, value);
+			var added = missingOption(sudoku, row, column, value, {8: true});
 			added.should.be.true;
 
 			// overwriting
-			var past = value;
 			value = 4;
-			sudoku.setCell(row, column, value);
-			var overwritten = missingOption(sudoku, row, column, value);
+			sudoku.set(row, column, value);
+			var overwritten = missingOption(sudoku, row, column, value, {4: true});
 			overwritten.should.be.true;
 
 			// no change
-			sudoku.setCell(row, column, value);
-			var unchanged = missingOption(sudoku, row, column, value);
+			sudoku.set(row, column, value);
+			var unchanged = missingOption(sudoku, row, column, value, {4: true});
 			unchanged.should.be.true;
 
-			// erasing
-			sudoku.setCell(row, column, 0);
-			var erased = optionsAre(sudoku, sudoku.n);
+			// // erasing
+			value = 0;
+			sudoku.set(row, column, value);
+			var erased = missingOption(sudoku, row, column, value, {});
 			erased.should.be.true;
 		});
 
+		var options = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 		it('should show up correctly on start board', function() {
+			
 			var sudoku = new Sudoku(start);
-			[2, 6].every(function(number) {
-				return sudoku.options[0][3][number];
+			
+			options.every(function(option) {
+				if (option === 2 || option === 6) {
+					return sudoku.state.available(0, 3, option);
+				} else {
+					return !sudoku.state.available(0, 3, option);
+				}
+			}).should.be.true;
+
+			sudoku.set(0, 8, 2);
+
+			options.every(function(option) {
+				return (option === 6) ? sudoku.state.available(0, 3, option) : 
+										!sudoku.state.available(0, 3, option);
+			}).should.be.true;
+
+			options.every(function(option) {
+				return (option === 3 || option === 4) ? sudoku.state.available(1, 7, option) : 
+														!sudoku.state.available(1, 7, option);
+			}).should.be.true;
+
+			options.every(function(option) {
+				return (option === 3) ? sudoku.state.available(7, 7, option) : 
+										!sudoku.state.available(7, 7, option);
 			}).should.be.true;
 		});
 
 		it('should show up as empty on completed board', function() {
 			var sudoku = new Sudoku(end);
-			var initialized = optionsAre(sudoku, 0);
-
-			initialized.should.be.true;
-
+			options.every(function(row) {
+				return options.every(function(column) {
+					return options.every(function(option) {
+						return !sudoku.state.available(row-1, column-1, option);
+					});
+				});
+			}).should.be.true;
 		});
 	});
 	
-	xdescribe('solver', function() {
+	describe('solver', function() {
 		it('should handle the wikipedia example', function() {
 			var sudoku = new Sudoku(start);
 			sudoku.solve();
@@ -295,6 +302,30 @@ describe('Sudoku', function(){
 				});
 			}));
 			solved.should.be.true;
+		});
+
+		it('should handle the worlds hardest sudoku board', function() {
+			this.timeout(50000);
+			var sudoku = new Sudoku(hard);
+			sudoku.solve();
+
+			var unchanged = true;
+			hard.forEach(function(row, rowIndex) {
+				row.forEach(function(value, columnIndex) {
+					if (value !== 0 && sudoku.board[rowIndex][columnIndex] !== value) unchanged = false;
+				});
+			});
+
+			unchanged.should.be.true;
+
+			var filled = sudoku.board.every(function(row) {
+				return row.every(function(entry) {
+					return entry !== 0;
+				});
+			});
+
+			filled.should.be.true;
+			sudoku.state.hasConflict().should.be.false;
 		});
 	});
 });

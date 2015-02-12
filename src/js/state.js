@@ -4,9 +4,15 @@ var helpers = require('./helpers');
 var SudokuState = function(n) {
 	this.n = n;
 	this.sqrt = Math.sqrt(this.n);
-	this.rows = initializeSets(n);
-	this.columns = initializeSets(n);
-	this.sections = initializeSets(n);
+	this.rows = helpers.initializeArray.call(this, n, function() {
+		return new SudokuSet(n);
+	});
+	this.columns = helpers.initializeArray.call(this, n, function() {
+		return new SudokuSet(n);
+	});
+	this.sections = helpers.initializeArray.call(this, n, function() {
+		return new SudokuSet(n);
+	});
 	this.options = helpers.initializeMatrix.call(this, this.n, function() {
 		return helpers.initializeOptions(this.n);
 	});
@@ -18,14 +24,14 @@ SudokuState.prototype.update = function(row, column, previous, value) {
 	// adding
 	if (previous === 0 && value !== 0) {
 		this.insert(row, column, value);
-		setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
+		helpers.setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
 			delete this.options[row][column][value];
 		});
 	} 
 	// if erasing
 	else if (previous !== 0 && value === 0) {
 		this.delete(row, column, previous);
-		setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
+		helpers.setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
 			if (this.available(row, column, previous)) this.options[row][column][previous] = true;
 		});
 	} 
@@ -33,7 +39,7 @@ SudokuState.prototype.update = function(row, column, previous, value) {
 	else if (previous !== value) {
 		this.delete(row, column, previous);
 		this.insert(row, column, value);
-		setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
+		helpers.setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
 			if (this.available(row, column, previous)) this.options[row][column][previous] = true;
 			delete this.options[row][column][value];
 		});
@@ -87,40 +93,8 @@ SudokuState.prototype.hasConflict = function() {
 	return false;
 };
 
-function initializeSets(n) {
-	return Array.apply(null, Array(n)).map(function() {
-		return new SudokuSet(n);
-	});
-}
-
 function getSection(row, column) {
 	return (Math.floor(row / this.sqrt) * this.sqrt) + (Math.floor(column / this.sqrt) % this.sqrt);
-}
-
-function setsForEach(row, column, rowOrigin, columnOrigin, callback) {
-	var sectionRow, sectionColumn;
-
-	for (var index = 0; index < this.n; index++) {
-		// apply callback on row
-		callback.call(this, row, index);
-
-		// apply callback on column 
-		callback.call(this, index, column);
-
-		// apply callback on section
-		sectionRow = rowOrigin + (index % this.sqrt);
-		sectionColumn = columnOrigin + (Math.floor(index / this.sqrt));
-		callback.call(this, sectionRow, sectionColumn);
-	}
-}
-
-// abstract into helper
-function matrixForEach(matrix, callback) {
-	matrix.forEach(function(row, rowIndex) {
-		row.forEach(function(value, columnIndex) {
-			callback.call(this, value, rowIndex, columnIndex, matrix);
-		}.bind(this));
-	}.bind(this));
 }
 
 module.exports = SudokuState;

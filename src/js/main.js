@@ -37,28 +37,11 @@ Sudoku.prototype.set = function(row, column, value) {
 	this.board[row][column] = value;
 };
 
-function setsForEach(row, column, rowOrigin, columnOrigin, callback) {
-	var sectionRow, sectionColumn;
-
-	for (var index = 0; index < this.n; index++) {
-		// apply callback on row
-		callback.call(this, row, index);
-
-		// apply callback on column 
-		callback.call(this, index, column);
-
-		// apply callback on section
-		sectionRow = rowOrigin + (index % this.sqrt);
-		sectionColumn = columnOrigin + (Math.floor(index / this.sqrt));
-		callback.call(this, sectionRow, sectionColumn);
-	}
-}
-
 function lookAhead(row, column, value) {
 	var available = true;
 	var rowOrigin = Math.floor(row / this.sqrt) * this.sqrt;
 	var columnOrigin = Math.floor(column / this.sqrt) * this.sqrt;
-	setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
+	helpers.setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
 		var options = this.state.getOptions(row, column);
 		if (options[value] && Object.keys(options).length === 1) available = false;
 	});

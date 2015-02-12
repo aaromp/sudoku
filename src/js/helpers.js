@@ -1,11 +1,3 @@
-var initializeMatrix = function(n, callback) {
-	return Array.apply(null, Array(n)).map(function(row, rowIndex) {
-		return Array.apply(null, Array(n)).map(function(column, columnIndex) {
-			return callback.call(this, rowIndex, columnIndex);
-		}.bind(this));
-	}.bind(this));
-};
-
 var isPerfectSquare = function(n) {
 	this.sqrt = Math.sqrt(n); // store sqrt on object to avoid recalculating
 	var roundedSqrt = Math.floor(this.sqrt);
@@ -15,9 +7,17 @@ var isPerfectSquare = function(n) {
 
 function initializeArray(n, callback) {
 	return Array.apply(null, Array(n)).map(function(value, index) {
-		return callback.call(this, n, callback, value, index);
+		return callback.call(this, value, index);
 	}.bind(this));
 }
+
+var initializeMatrix = function(n, callback) {
+	return initializeArray.call(this, n, function(row, rowIndex) {
+		return initializeArray.call(this, n, function(column, columnIndex) {
+			return callback.call(this, rowIndex, columnIndex);
+		});
+	});
+};
 
 function initializeSet(n, callback) {
 	var options = {};
@@ -40,12 +40,15 @@ module.exports = {
 		
 		return isPerfectSquare.call(this, input.length);
 	},
+	initializeArray: function(n, callback) {
+		return initializeArray.call(this, n, callback);
+	},
 	initializeMatrix: function(n, callback) {
-		return Array.apply(null, Array(n)).map(function(row, rowIndex) {
-			return Array.apply(null, Array(n)).map(function(column, columnIndex) {
+		return initializeArray.call(this, n, function(row, rowIndex) {
+			return initializeArray.call(this, n, function(column, columnIndex) {
 				return callback.call(this, rowIndex, columnIndex);
-			}.bind(this));
-		}.bind(this));
+			});
+		});
 	},
 	initializeOptions: function(n) {
 		return initializeSet(n, function() {
@@ -56,5 +59,21 @@ module.exports = {
 		return initializeSet(n, function() {
 			return 0;
 		});
+	},
+	setsForEach: function(row, column, sectionRowOrigin, sectioncolumnOrigin, callback) {
+		var sectionRow, sectionColumn;
+	
+		for (var index = 0; index < this.n; index++) {
+			// apply callback on row
+			callback.call(this, row, index);
+	
+			// apply callback on column 
+			callback.call(this, index, column);
+	
+			// apply callback on section
+			sectionRow = sectionRowOrigin + (index % this.sqrt);
+			sectionColumn = sectioncolumnOrigin + (Math.floor(index / this.sqrt));
+			callback.call(this, sectionRow, sectionColumn);
+		}
 	}
 };

@@ -2,23 +2,20 @@ var helpers = require('./helpers');
 var SudokuState = require('./state');
 
 var Sudoku = function() {
-	if (typeof arguments[0] === 'number' && arguments[0] > 1 && 
-		helpers.isPerfectSquare.call(this, arguments[0])) {
-
+	if (helpers.isValidNumericalInput.call(this, arguments[0])) {
 		this.n = arguments[0];
-	} else if (Array.isArray(arguments[0]) && arguments[0].length > 1 && 
-			   helpers.isPerfectSquare.call(this, arguments[0].length)) {
-
+	} else if (helpers.isValidMatrixInput.call(this, arguments[0])) {
 		this.n = arguments[0].length;
 	} else {
-		throw new Error('invalid input! input must be a n or an n x n matrix ' +
-						'where n is a perfect square larger than 1');
+		throw new Error('invalid input! input must be an integer, n, or an ' +
+					    'n x n matrix where n is a perfect square larger than 1');
 	}
 
 	this.remainingMoves = this.n * this.n;
 	this.board = helpers.createBoard.call(this, this.n);
 	this.state = new SudokuState(this.n);
 
+	// if input is an array, initialize the board with its values
 	if (Array.isArray(arguments[0])) {
 		arguments[0].forEach(function(row, rowIndex) {
 			if (row.length !== this.n) throw new Error('the matrix must be n x n');
@@ -38,13 +35,42 @@ Sudoku.prototype.set = function(row, column, value) {
 	this.board[row][column] = value;
 };
 
+function setsForEach(row, column, rowOrigin, columnOrigin, callback) {
+	var sectionRow, sectionColumn;
+
+	for (var index = 0; index < this.n; index++) {
+		// apply callback on row
+		callback.call(this, row, index);
+
+		// apply callback on column 
+		callback.call(this, index, column);
+
+		// apply callback on section
+		sectionRow = rowOrigin + (index % this.sqrt);
+		sectionColumn = columnOrigin + (Math.floor(index / this.sqrt));
+		callback.call(this, sectionRow, sectionColumn);
+	}
+}
+
+function lookAhead(row, column, value) {
+	var available = true;
+	var rowOrigin = Math.floor(row / this.sqrt) * this.sqrt;
+	var columnOrigin = Math.floor(column / this.sqrt) * this.sqrt;
+	setsForEach.call(this, row, column, rowOrigin, columnOrigin, function(row, column) {
+		var options = this.state.getOptions(row, column);
+		if (options[value] && Object.keys(options).length === 1) available = false;
+	});
+
+	return available;
+}
+
 function getMostConstrained(callback) {
 	var fewestOptions = this.n + 1;
 	var targetRow, targetColumn, targetOptions;
 	var options, numOptions;
 	for (var row = 0; row < this.n; row++) {
 		for (var column = 0; column < this.n; column++) {
-			if (this.board[row][column] === 0) {
+			if (this.board[row][column] === 0 && lookAhead.call(row, column, this.board[row][column])) {
 				options = this.state.getOptions(row, column);
 				numOptions = Object.keys(options).length;
 				if (numOptions === 1) {

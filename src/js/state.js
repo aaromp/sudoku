@@ -4,15 +4,15 @@ var helpers = require('./helpers');
 var SudokuState = function(n) {
 	this.n = n;
 	this.sqrt = Math.sqrt(this.n);
-	this.rows = helpers.initializeArray.call(this, n, function() {
-		return new SudokuSet(n);
-	});
-	this.columns = helpers.initializeArray.call(this, n, function() {
-		return new SudokuSet(n);
-	});
-	this.sections = helpers.initializeArray.call(this, n, function() {
-		return new SudokuSet(n);
-	});
+
+	// initialize each array of sets to track conflicts
+	['rows', 'columns', 'sections'].forEach(function(array) {
+		this[array] = helpers.initializeArray.call(this, n, function() {
+			return new SudokuSet(n);
+		});
+	}.bind(this));
+
+	// initialize a matrix to track available options
 	this.options = helpers.initializeMatrix.call(this, this.n, function() {
 		return helpers.initializeOptions(this.n);
 	});

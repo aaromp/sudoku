@@ -11,14 +11,6 @@ function initializeArray(n, callback) {
 	}.bind(this));
 }
 
-var initializeMatrix = function(n, callback) {
-	return initializeArray.call(this, n, function(row, rowIndex) {
-		return initializeArray.call(this, n, function(column, columnIndex) {
-			return callback.call(this, rowIndex, columnIndex);
-		});
-	});
-};
-
 function initializeSet(n, callback) {
 	var options = {};
 	for (var index = 1; index <= n; index++) {

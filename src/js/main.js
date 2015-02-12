@@ -1,11 +1,12 @@
 var helpers = require('./helpers');
 var SudokuState = require('./state');
 
-var Sudoku = function() {
-	if (helpers.isValidNumericalInput.call(this, arguments[0])) {
-		this.n = arguments[0];
-	} else if (helpers.isValidMatrixInput.call(this, arguments[0])) {
-		this.n = arguments[0].length;
+var Sudoku = function(input) {
+	// check for valid input
+	if (helpers.isValidNumericalInput.call(this, input)) {
+		this.n = input;
+	} else if (helpers.isValidMatrixInput.call(this, input)) {
+		this.n = input.length;
 	} else {
 		throw new Error('invalid input! input must be an integer, n, or an ' +
 					    'n x n matrix where n is a perfect square larger than 1');
@@ -18,8 +19,8 @@ var Sudoku = function() {
 	});
 
 	// if input is a matrix, initialize the board with its values
-	if (Array.isArray(arguments[0])) {
-		arguments[0].forEach(function(row, rowIndex) {
+	if (Array.isArray(input)) {
+		input.forEach(function(row, rowIndex) {
 			if (row.length !== this.n) throw new Error('the matrix must be n x n');
 
 			row.forEach(function(value, columnIndex) {
@@ -75,23 +76,25 @@ function getMostConstrained(callback) {
 }
 
 function recSolve() {
+	// base case: if there aren't any remaining moves, the puzzle is sovled
 	if (this.remainingMoves === 0) return true;
-	// find the most constrained tile (fewest options and isn't set)
 
+	// find the most constrained cell (fewest options and isn't set)
 	return getMostConstrained.call(this, function(row, column, options) {
-		if (options === undefined) {
-			return false;
-		}
+		// base case: moves remain but there are not more options
+		if (options === undefined) return false;
 
+		// recursive case: 
 		for (var option in options) {
-			// otherwise place it and recurse
+			// set the current square to one of the available options
 			this.set(row, column, parseInt(option));
-			// if we succeed we're done
+			// if that placement leads to success, we're done
 			if (recSolve.call(this)) return true;
 			// otherwise we need to backtrack
 			this.set(row, column, 0);
 		}
 
+		// base case: no outcome on this path was successful
 		return false;
 
 	}.bind(this));

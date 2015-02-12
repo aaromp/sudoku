@@ -48,7 +48,7 @@ describe('Sudoku', function(){
 		var testDimensions = function(n) {
 			var sudoku;
 
-			if (helpers.isPerfectSquare(n)) {
+			if ((Math.sqrt(n) * Math.sqrt(n)) === (Math.floor(Math.sqrt(n)) * Math.floor(Math.sqrt(n)))) {
 				sudoku = new Sudoku(n);
 
 				it('should have ' + n + ' rows', function() {

@@ -7,7 +7,9 @@ var SudokuState = function(n) {
 	this.rows = initializeSets(n);
 	this.columns = initializeSets(n);
 	this.sections = initializeSets(n);
-	this.options = helpers.initializeOptions.call(this);
+	this.options = helpers.initializeMatrix.call(this, this.n, function() {
+		return helpers.initializeOptions(this.n);
+	});
 };
 
 SudokuState.prototype.update = function(row, column, previous, value) {

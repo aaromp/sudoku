@@ -12,10 +12,12 @@ var Sudoku = function() {
 	}
 
 	this.remainingMoves = this.n * this.n;
-	this.board = helpers.createBoard.call(this, this.n);
-	this.state = new SudokuState(this.n);
+	this.state = new SudokuState(this.n); // tracks the validity of the board
+	this.board = helpers.initializeMatrix.call(this, this.n, function() {
+		return 0;
+	});
 
-	// if input is an array, initialize the board with its values
+	// if input is a matrix, initialize the board with its values
 	if (Array.isArray(arguments[0])) {
 		arguments[0].forEach(function(row, rowIndex) {
 			if (row.length !== this.n) throw new Error('the matrix must be n x n');

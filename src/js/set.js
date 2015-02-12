@@ -1,5 +1,7 @@
+var helpers = require('./helpers');
+
 var SudokuSet = function(n) {
-	this.set = initializeSet(n);
+	this.set = helpers.initializeCounts(n);
 };
 
 SudokuSet.prototype.contains = function(value) {
@@ -19,14 +21,5 @@ SudokuSet.prototype.hasConflict = function() {
 		return this.set[value] > 1;
 	}.bind(this));
 };
-
-function initializeSet(n) {
-	var set = {};
-	for (var index = 1; index <= n; index++) {
-		set[index] = 0;
-	}
-
-	return set;
-}
 
 module.exports = SudokuSet;

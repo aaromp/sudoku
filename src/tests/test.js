@@ -1,6 +1,6 @@
 var should = require('should');
 
-var Sudoku = require('../js/main');
+var Sudoku = require('../js/sudoku');
 var SudokuSet = require('../js/set');
 var helpers = require('../js/helpers');
 

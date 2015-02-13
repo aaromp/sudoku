@@ -51,15 +51,18 @@ input
 	color: transparent
 	text-shadow: 0 0 0 $yellow
 
-input[readonly]
+.highlighted
 	background-color: $yellow
 	color: $grey
 
-.success input[readonly]
+input[readonly]
+	opacity: 0.67
+
+.success input[readonly], table.success .highlighted
 	background-color: $green
 	color: $grey
 
-.failure input[readonly]
+.failure input[readonly], table.failure .highlighted, .highlighted.conflict 
 	background-color: $pink
 	color: $grey
 

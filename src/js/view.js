@@ -1,11 +1,18 @@
 function SudokuView() {
 	var table = document.createElement('table');
 	var tr, td, input;
+	var sectionRow, sectionColumn;
 	for (var row = 0; row < this.n; row++) {
 		tr = document.createElement('tr');
 		for (var column = 0; column < this.n; column++) {
+			sectionRow = Math.floor(row/this.sqrt) * this.sqrt;
+			sectionColumn = Math.floor(column/this.sqrt) * this.sqrt;
 			td = document.createElement('td');
 			input = document.createElement('input');
+			if ((sectionRow % 2 !== 0 && sectionColumn % 2 !== 0) ||
+				(sectionRow % 2 === 0 && sectionColumn % 2 === 0)) {
+				input.classList.add('highlighted');
+			}
 			input.dataset.row = row;
 			input.dataset.column = column;
 			input.type = 'text';

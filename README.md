@@ -47,6 +47,3 @@ For tracking the state of the Sudoku game I use 3 arrays of length n to keep tra
 
 ## Known Bugs
 Invalidly set cells prevent valid cells from displaying the correct color—when the invalidly placed cell is removed, the valid cell should update in color.
-
-Submit your test here:
-http://boards.greenhouse.io/tests/a9a9c687ad538a0b794c1452a405ea68

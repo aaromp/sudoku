@@ -1,5 +1,6 @@
 var helpers = require('./helpers');
 var SudokuState = require('./state');
+var SudokuView = require('./element');
 
 var Sudoku = function() {
 	// check for valid input
@@ -18,68 +19,7 @@ var Sudoku = function() {
 		return 0;
 	});
 
-
-
-
-	var table = document.createElement('table');
-	this.elem = table;
-	var tr, td, input;
-	for (var row = 0; row < this.n; row++) {
-		tr = document.createElement('tr');
-		for (var column = 0; column < this.n; column++) {
-			td = document.createElement('td');
-			input = document.createElement('input');
-			input.dataset.row = row;
-			input.dataset.column = column;
-			input.type = 'text';
-			var exp = /[0-9]*/;
-			input.setAttribute('pattern', exp);
-			input.setAttribute('maxLength', 1);
-	
-			tr.appendChild(td).appendChild(input);
-		}
-		table.appendChild(tr);
-	}
-	
-	// var previous, focused;
-	
-	
-	table.addEventListener('update', function(e) {
-		var input = getInput(table, e.detail.row, e.detail.column);
-		input.value = e.detail.value || '';
-		if (e.detail.readonly) input.setAttribute('readonly', '');
-	});
-	
-	var isValidKeyCode = function(keyCode) {
-		return (keyCode >= 49 && keyCode <= 57) || keyCode === 8;
-	};
-	
-	table.addEventListener('keydown', function(e) {
-		e.preventDefault();
-		if (isValidKeyCode(e.keyCode)) {
-			e.target.value = '';
-			var value = e.keyCode === 8 ? 0 : e.keyCode - 48;
-			this.set(e.target.dataset.row, e.target.dataset.column, value);
-		}
-	}.bind(this));
-	
-	// table.addEventListener('focusin', function(e) {
-	// 	// previous = e.target.value;
-	// 	focused = e.target;
-	// 	// if (e.target.attributes.readonly !== '') e.target.value = '';
-	// });
-	
-	// table.addEventListener('focusout', function(e) {
-	// 	focus = undefined;
-	// 	// if (e.target.value === '' && previous !== '') {
-	// 	// 	e.target.value = previous;
-	// 	// }
-	// });
-	
-	document.body.appendChild(table);
-	
-	window.table = table;
-
+	this.view = SudokuView.call(this);
 
 	// if input is a matrix, initialize the board with its values
 	if (Array.isArray(arguments[0])) {
@@ -88,10 +28,6 @@ var Sudoku = function() {
 		}.bind(this));
 	}
 };
-
-function getInput(table, row, column) {
-	return table.children[row].children[column].children[0];
-}
 
 Sudoku.prototype.set = function(row, column, value, readonly) {
 	if (this.board[row][column] !== 0 && value === 0) this.remainingMoves++;
@@ -108,7 +44,7 @@ Sudoku.prototype.set = function(row, column, value, readonly) {
 			'readonly': readonly
 		}
 	});
-	table.dispatchEvent(update);
+	this.view.dispatchEvent(update);
 };
 
 function lookAhead(row, column, value) {

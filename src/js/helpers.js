@@ -29,6 +29,11 @@ module.exports = {
 	},
 	isValidMatrixInput: function(input) {
 		if (!Array.isArray(input) || input.length <= 1) return false; 
+
+		// matrix must be an n x n matrix
+		if (input.some(function(row) {
+			return !Array.isArray(row) || row.length !== input.length;
+		})) return false;
 		
 		return isPerfectSquare.call(this, input.length);
 	},
@@ -67,5 +72,12 @@ module.exports = {
 			sectionColumn = sectioncolumnOrigin + (Math.floor(index / this.sqrt));
 			callback.call(this, sectionRow, sectionColumn);
 		}
+	},
+	matrixForEach: function(matrix, callback) {
+		matrix.forEach(function(row, rowIndex) {
+			row.forEach(function(value, columnIndex) {
+				callback.call(this, rowIndex, columnIndex, value);
+			}.bind(this));
+		}.bind(this));
 	}
 };

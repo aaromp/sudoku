@@ -1,18 +1,30 @@
 *
 	padding: 0
-	// box-sizing: border-box
 
 h1
 	color: blue
 
 table
 	border-collapse: collapse
+	border-spacing: 0
+	cellspacing: 0
+	cellpadding: 0
 	height: 500px
 	width: 500px
+	border: 1px solid black
 
 input
+	// box-sizing: border-box;
 	height: 100%
 	width: 100%
 	text-align: center
-	border: 1px solid pink
-	
+	border: 1px solid black
+	color: transparent
+	text-shadow: 0 0 0 #000
+
+input[readonly]
+	background-color: pink
+
+input:focus
+	// background-color: yellow
+

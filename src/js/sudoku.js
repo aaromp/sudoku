@@ -1,6 +1,6 @@
 var helpers = require('./helpers');
 var SudokuState = require('./state');
-var SudokuView = require('./element');
+var SudokuView = require('./view');
 
 var Sudoku = function() {
 	// check for valid input
@@ -29,6 +29,24 @@ var Sudoku = function() {
 	}
 };
 
+function updateView(row, column, readonly) {
+	var update = new CustomEvent('update', {
+		'detail': {
+			'row': row,
+			'column': column,
+			'value': this.board[row][column],
+			'conflict': this.state.hasConflictAt(row, column),
+			'completed': {
+				'value': this.remainingMoves === 0,
+				'conflict': this.state.hasConflict(row, column)
+			},
+			'readonly': readonly
+		}
+	});
+
+	this.view.dispatchEvent(update);
+}
+
 Sudoku.prototype.set = function(row, column, value, readonly) {
 	if (this.board[row][column] !== 0 && value === 0) this.remainingMoves++;
 	else if (this.board[row][column] === 0 && value !== 0) this.remainingMoves--;
@@ -36,15 +54,7 @@ Sudoku.prototype.set = function(row, column, value, readonly) {
 	this.state.update(row, column, previous, value);
 	this.board[row][column] = value;
 
-	var update = new CustomEvent('update', {
-		'detail': {
-			'row': row,
-			'column': column,
-			'value': value,
-			'readonly': readonly
-		}
-	});
-	this.view.dispatchEvent(update);
+	updateView.call(this, row, column, readonly);
 };
 
 function lookAhead(row, column, value) {
@@ -83,7 +93,8 @@ function getMostConstrained(callback) {
 
 	return callback.call(this, targetRow, targetColumn, targetOptions);
 }
-var count = 0;
+
+var count = 0; // used to check progress on pruning search space
 function recSolve() {
 	count++;
 	// base case: if there aren't any remaining moves, the puzzle is sovled

@@ -1,40 +1,52 @@
-# Sudokuber
+# Sudoku
+A grid based number game.
+
+## Features
+* Color feedback (incorrect moves and game completion)
+* Numberpad input on iOS
+* Responsive sizing for mobile and desktop 
+
+## Instructions
+Simply clone the repo, `npm install` `gulp` and head to localhost:8080.
 
 ## File Structure
-
-src/
-	js/
-	styles/
-	templates/
-	tests/
-
-builds/
-	dev/
-		js/
-		css/
-		index.html
-	prod/
-
+	* src/
+		* js/
+		* styles/
+		* templates/
+		* tests/
+	
+	* builds/
+		* dev/
+			* js/
+			* css/
+			* index.html
+		* prod/
 
 ## Technical Stack
-	* Gulp: Build System
-	* Browserify: Scripts
-	* Jade: HTML
-	* Stylus: CSS
-	* Mocha: Testing
+* Gulp: Build System
+* Browserify: Scripts
+* Jade: HTML
+* Stylus: CSS
+* Mocha + Should: Testing
 
----------------------------------
-Front End Engineer Coding Challenge
+I chose Browserify to keep my scripts modular while maintaining the ability to easily concatenate and uglify them. On this project, Jade and Stylus were mostly used to do less typing. Mocha paired with Should was used in order to follow a test driven development process. Gulp was selected as task runner to automate the various tools listed above.
 
-Using HTML, CSS and JavaScript, create a functional and stylized Sudoku game. A single board is sufficient (Wikipedia has an example board (see here: http://en.wikipedia.org/wiki/File:Sudoku-by-L2G-20050714.svg) with a solved version (http://en.wikipedia.org/wiki/File:Sudoku-by-L2G-20050714_solution.svg)), but feel free to incorporate a board generator if time permits. 
+## Technical Choices
+I built the view with JavaScript. This allowed me to create boards of arbitrary size (4x4, 5x5, etc.) but has the drawback of a potential flicker while processing. The messaging between the view layer and data layer follow a basic MVC pattern. User input triggers DOM events, which modify the models, which in turn trigger an event to update the view. Having this one way data flow ensures models are the single source of truth and therefore the functionality validated by testing will carry through to the view layer.
 
-The purpose of this exercise is to show Uber your ability to architect modular, performant Javascript code with well-structured, flexible CSS.
+For tracking the state of the Sudoku game I use 3 arrays of length n to keep track of row, column and section conflicts. Additionally, I store a matrix of available options corresponding to each position on the board for quick validation. I built out a backtracking sudoku solver that selects the most constrained cells and looks ahead to prune the search space. Performance is very slow because the operations used to keep track of state are inefficient. Had I had more time I would have optimized them. Likewise I would have refactored some aspects of the scripts and spent more time adding polish to the design.
 
-Make sure your application has an appealing UI, is mobile-friendly (Android/iOS), and supports multiple browsers (latest Firefox/Chrome and IE10). We encourage the use of templating engines and preprocessors, like Jade or Sass, and module loaders like Browserify or RequireJS. You may use JavaScript libraries, like jQuery or Zepto, but please refrain from using frameworks, like Backbone or Bootstrap. You may store state directly in the browser; a server is not required. A build system and tests are a huge plus.
+## Planned Features
+* Modes
+	* Easy mode: shows shows the cause of conflicts and avilable options
+	* Normal mode: shows cell conflict
+	* Hard mode: no assistance
+* Board generator
+* Improved design
 
-In reviewing, it’s important to us that the code is consistent and well-formatted and that you’ve kept a good commit history that demonstrates your progress. In addition, please provide a README that describes how to run your app, outlines the structure and technologies used, the reasoning behind your technical choices, and any trade-offs you made or changes you would have implemented had you had additional time.
-
-When you’re done, please provide a link to the source on Github or Bitbucket. You’re free to host the game somewhere, like Github Pages (https://pages.github.com/) or 5minfork (http://5minfork.com/), but that’s not required.
+## Known Bugs
+Invalidly set cells prevent valid cells from displaying the correct color—when the invalidly placed cell is removed, the valid cell should update in color.
 
 Submit your test here:
 http://boards.greenhouse.io/tests/a9a9c687ad538a0b794c1452a405ea68

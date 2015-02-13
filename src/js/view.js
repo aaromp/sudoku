@@ -9,7 +9,7 @@ function SudokuView() {
 			input.dataset.row = row;
 			input.dataset.column = column;
 			input.type = 'text';
-			var exp = /[0-9]*/;
+			var exp = '[0-9]*';
 			input.setAttribute('pattern', exp);
 			input.setAttribute('maxLength', 1);
 	
@@ -21,10 +21,20 @@ function SudokuView() {
 	table.addEventListener('update', function(e) {
 		var input = getInput(table, e.detail.row, e.detail.column);
 		input.value = e.detail.value || '';
+
+		// handle placement coloring
 		if (e.detail.readonly) input.setAttribute('readonly', '');
+		if (e.detail.conflict) input.classList.add('conflict');
+		else input.classList.remove('conflict');
+
+		// handle game completion coloring
+		table.classList.remove('failure');
+		table.classList.remove('success');
+		if (e.detail.completed.value) {
+			if (e.detail.completed.conflict) table.classList.add('failure');
+			else table.classList.add('success');
+		}
 	});
-	
-	
 	
 	table.addEventListener('keydown', function(e) {
 		e.preventDefault();

@@ -4,7 +4,8 @@ A grid based number game.
 ## Features
 * Color feedback (incorrect moves and game completion)
 * Numberpad input on iOS
-* Responsive sizing for mobile and desktop 
+* Responsive sizing for mobile and desktop
+* Board solver—type game.solve() in the developer tools
 
 ## Instructions
 Simply clone the repo, `npm install` `gulp` and head to localhost:8080.

@@ -58,16 +58,16 @@ input
 input[readonly]
 	opacity: 0.67
 
-.success input[readonly], table.success .highlighted
+table.success .highlighted
 	background-color: $green
 	color: $grey
 
-.failure input[readonly], table.failure .highlighted, .highlighted.conflict 
+table.failure .highlighted, .highlighted.conflict 
 	background-color: $pink
 	color: $grey
 
-.failure input, .conflict
+.failure input,.failure input[readonly], .conflict
 	text-shadow: 0 0 0 $pink
 	
-.success input
+.success input, .success input[readonly]
 	text-shadow: 0 0 0 $green

@@ -48,3 +48,5 @@ For tracking the state of the Sudoku game I use 3 arrays of length n to keep tra
 
 ## Known Bugs
 Invalidly set cells prevent valid cells from displaying the correct color—when the invalidly placed cell is removed, the valid cell should update in color.
+
+Highlighted boxes don't color correctly on even n grids.
